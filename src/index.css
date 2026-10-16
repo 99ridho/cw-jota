@@ -1,0 +1,185 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+/* Light-only brutalist theme: warm paper, ink borders, hard offset shadows,
+   candy accents. All text on fills uses --ink unless noted (AA checked). */
+:root {
+  --background: oklch(0.9400 0.0400 85.00);
+  --foreground: oklch(0.2000 0.0140 72.00);
+  --card: oklch(0.9850 0.0150 85.00);
+  --card-foreground: oklch(0.2000 0.0140 72.00);
+  --popover: oklch(0.9850 0.0150 85.00);
+  --popover-foreground: oklch(0.2000 0.0140 72.00);
+  --primary: oklch(0.6500 0.1900 40.00);
+  --primary-foreground: oklch(0.2000 0.0140 72.00);
+  --secondary: oklch(0.7600 0.1700 145.00);
+  --secondary-foreground: oklch(0.2000 0.0140 72.00);
+  --muted: oklch(0.8900 0.0450 83.00);
+  --muted-foreground: oklch(0.4300 0.0350 72.00);
+  --accent: oklch(0.8700 0.1500 88.00);
+  --accent-foreground: oklch(0.2000 0.0140 72.00);
+  --destructive: oklch(0.5300 0.2000 27.00);
+  --destructive-foreground: oklch(1.0000 0 0);
+  --border: oklch(0.2000 0.0140 72.00);
+  --input: oklch(0.9850 0.0150 85.00);
+  --ring: oklch(0.6500 0.1900 40.00);
+
+  --info: oklch(0.7800 0.1100 230.00);
+  --pink: oklch(0.7900 0.1300 350.00);
+  --lamp: oklch(0.8900 0.1700 95.00);
+  --lamp-off: oklch(0.4200 0.0300 72.00);
+  --ink: oklch(0.2000 0.0140 72.00);
+
+  --chart-1: var(--primary);
+  --chart-2: var(--secondary);
+  --chart-3: var(--pink);
+  --chart-4: var(--info);
+  --chart-5: var(--accent);
+
+  --font-sans: "PT Sans", system-ui, sans-serif;
+  --font-mono: "PT Mono", ui-monospace, monospace;
+  --radius: 0px;
+  --shadow-color: #1a150f;
+  --shadow-2xs: 2px 2px 0px 0px var(--shadow-color);
+  --shadow-xs: 2px 2px 0px 0px var(--shadow-color);
+  --shadow-sm: 3px 3px 0px 0px var(--shadow-color);
+  --shadow: 4px 4px 0px 0px var(--shadow-color);
+  --shadow-md: 4px 4px 0px 0px var(--shadow-color);
+  --shadow-lg: 6px 6px 0px 0px var(--shadow-color);
+  --shadow-xl: 8px 8px 0px 0px var(--shadow-color);
+  --shadow-2xl: 12px 12px 0px 0px var(--shadow-color);
+  --tracking-normal: 0.01em;
+  --spacing: 0.25rem;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-info: var(--info);
+  --color-pink: var(--pink);
+  --color-lamp: var(--lamp);
+  --color-lamp-off: var(--lamp-off);
+  --color-ink: var(--ink);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+
+  --radius-sm: var(--radius);
+  --radius-md: var(--radius);
+  --radius-lg: var(--radius);
+  --radius-xl: var(--radius);
+
+  --shadow-2xs: var(--shadow-2xs);
+  --shadow-xs: var(--shadow-xs);
+  --shadow-sm: var(--shadow-sm);
+  --shadow: var(--shadow);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+  --shadow-xl: var(--shadow-xl);
+  --shadow-2xl: var(--shadow-2xl);
+
+  --tracking-tighter: calc(var(--tracking-normal) - 0.05em);
+  --tracking-tight: calc(var(--tracking-normal) - 0.025em);
+  --tracking-normal: var(--tracking-normal);
+  --tracking-wide: calc(var(--tracking-normal) + 0.025em);
+  --tracking-wider: calc(var(--tracking-normal) + 0.05em);
+  --tracking-widest: calc(var(--tracking-normal) + 0.1em);
+
+  --animate-pop: pop 260ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  --animate-shake: shake 360ms ease-in-out;
+  --animate-wiggle: wiggle 1.6s ease-in-out infinite;
+  --animate-float-up: float-up 900ms ease-out forwards;
+
+  @keyframes pop {
+    0% { transform: scale(0.6); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-6px); }
+    40%, 80% { transform: translateX(6px); }
+  }
+  @keyframes wiggle {
+    0%, 100% { transform: rotate(-3deg); }
+    50% { transform: rotate(3deg); }
+  }
+  @keyframes float-up {
+    0% { transform: translateY(0); opacity: 1; }
+    100% { transform: translateY(-48px); opacity: 0; }
+  }
+}
+
+@utility brutal {
+  border: 3px solid var(--border);
+  box-shadow: var(--shadow);
+}
+
+/* Shadow collapses into the element on press, like a physical key. */
+@utility press {
+  transition: transform 80ms ease-out, box-shadow 80ms ease-out;
+  &:active:not(:disabled) {
+    transform: translate(4px, 4px);
+    box-shadow: 0 0 0 0 var(--shadow-color);
+  }
+}
+
+/* Paper texture: the screens read like a radio log sheet. */
+@utility paper-dots {
+  background-image: radial-gradient(color-mix(in oklch, var(--ink) 14%, transparent) 1.2px, transparent 1.2px);
+  background-size: 18px 18px;
+}
+
+/* Mono caps for labels only, the look of a telegram stamp. */
+@utility label-mono {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    -webkit-tap-highlight-color: transparent;
+  }
+  :focus-visible {
+    outline: 3px solid var(--ink);
+    outline-offset: 3px;
+  }
+  body {
+    @apply bg-background text-foreground font-sans paper-dots;
+    letter-spacing: var(--tracking-normal);
+    min-height: 100dvh;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 1ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 1ms !important;
+    }
+  }
+}

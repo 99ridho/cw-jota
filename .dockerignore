@@ -1,0 +1,10 @@
+node_modules
+dist
+dev-dist
+.git
+.github
+anti-slop
+*.md
+.claude
+.env.local
+.env.*.local
