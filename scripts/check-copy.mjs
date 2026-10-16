@@ -5,7 +5,7 @@ import { join, relative } from 'node:path'
 
 const ROOT = new URL('..', import.meta.url).pathname
 const SKIP_DIRS = ['node_modules', 'dist', '.git', join('src', 'components', 'ui')]
-const ROOTS = ['src', 'scripts', 'anti-slop', 'README.md', 'CLAUDE.md', 'index.html', '.env']
+const ROOTS = ['src', 'scripts', 'anti-slop', 'README.md', 'CLAUDE.md', 'ADR.md', 'index.html', '.env']
 const EXT = /(\.(ts|tsx|mjs|md|html|css)|^\.env)$/
 
 const CHECKS = [

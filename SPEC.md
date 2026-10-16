@@ -135,7 +135,7 @@ word_gap = 7 * ta
 ```
 
   When `s == c`, `ta` equals one dit (sanity check, included as a unit test).
-- Presets in `config.ts`: `learn` (c=18, s=8), `challenge` (c=18, s=12).
+- Presets in `config.ts`: `learn` (c=18, s=8), `challenge` (c=18, s=8). Challenge words keep 18 WPM letters with wide letter gaps (ADR-005).
 
 ### 5.4 Visual sync
 - The visual timeline is derived from the same schedule as the audio. A `requestAnimationFrame` loop compares `audioCtx.currentTime` against the scheduled events to drive `SignalLamp` and `PatternGlyph`, so the two cannot drift apart.
@@ -153,11 +153,13 @@ word_gap = 7 * ta
 ### 6.2 Dit and dah classification (adaptive)
 ```
 unit u        initial 150 ms (about 8 WPM), clamped 80..300 ms
-press d < 2u  -> dit, else dah
-after a dit   u = 0.7*u + 0.3*d
-after a dah   u = 0.7*u + 0.3*(d/3)
+press d < 2u  -> dit, else dah (shown in the live buffer)
+after a clear dit   u = 0.7*u + 0.3*d
+after a clear dah   u = 0.7*u + 0.3*(d/3)
 ```
-- A character commits after an idle gap of `max(500 ms, 4u)` or after 5 elements.
+- **Forgiving match (ADR-004):** when the target is known (Send drill), a press counts as a dit if `d <= 2.6u` and as a dah if `d >= 1.4u`. Presses between `1.4u` and `2.6u` match either, and they do not adapt the unit.
+- A character commits after an idle gap of `max(800 ms, 5u)`, after 5 elements, or as soon as it has as many elements as the target.
+- **Fill cue:** while the key is held, the target's next element fills with the lamp color: a dit in `u`, a dah in `1.4u` (the point where it counts as a dah).
 - The live buffer is shown as it is typed (for example `· – ·`) so the player always sees what the app heard.
 
 ### 6.3 Feedback
@@ -179,7 +181,7 @@ after a dah   u = 0.7*u + 0.3*(d/3)
 
 ### 7.3 Learn group (`/learn/:group`)
 1. **Meet:** a card per character with the glyph, the pattern, and tap-to-hear. The pattern is explained by rhythm ("di-dah"), not by chart.
-2. **Decode drill:** 6 questions per group. Options: 2 (group 1), 3 (group 2), 4 (group 3, including previously learned characters). Wrong answer replays the sound and re-queues that question later in the drill.
+2. **Decode drill:** 6 questions per group. Options: 2 (group 1), 3 (group 2), 4 (group 3, including previously learned characters). A wrong pick strikes that option out and replays the sound, and the player keeps picking on the same question. Only a first-try answer scores; a correct pick after a miss moves on with no mark. After a correct pick the next question comes about 1.8 s later (ADR-003).
 3. **Send drill:** the target character is shown with its pattern (guided). The player taps it out. Two correct sends per character complete the step.
 - **Unlock rule:** 5 of 6 correct in the drill, or 2 drill attempts. After two attempts the pattern is shown as a hint, so nobody gets stuck at an event. There are no dead ends.
 
@@ -235,7 +237,7 @@ after a dah   u = 0.7*u + 0.3*(d/3)
 | `STATION_CTA` | "Come try it live at the station" | Finish copy (ID and EN) |
 | `PRACTICE_URL` | `https://lcwo.net` | Target of the QR code |
 | `TONE_HZ` | `650` | Sidetone pitch |
-| `SPEED_PRESETS` | learn 18/8, challenge 18/12 | Character and overall WPM |
+| `SPEED_PRESETS` | learn 18/8, challenge 18/8 | Character and overall WPM |
 | `EVENT_LABEL` | `JOTA 2026` | Printed on the share card |
 
 ---

@@ -3,34 +3,50 @@ import { sidetoneOff, sidetoneOn } from '@/lib/audio/engine'
 import {
   commitDelay,
   createClassifier,
+  elementMatches,
+  matchesTarget,
   pattern,
   pushPress,
   shouldCommitNow,
   type ClassifierState,
 } from '@/lib/morse/classifier'
 
+export interface SendResult {
+  pattern: string
+  /** Matches `target` within the timing tolerance. False when there is no target. */
+  ok: boolean
+}
+
 interface Options {
-  onCommit: (pattern: string) => void
+  onCommit: (result: SendResult) => void
   enabled?: boolean
+  /** Known pattern to send. Commits as soon as that many elements are in. */
+  target?: string
 }
 
 /** Turns presses into dits and dahs. Space works anywhere on the page while enabled. */
-export function useSendInput({ onCommit, enabled = true }: Options) {
+export function useSendInput({ onCommit, enabled = true, target }: Options) {
   const state = useRef<ClassifierState>(createClassifier())
   const downAt = useRef<number | null>(null)
   const pointerId = useRef<number | null>(null)
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
   const commitRef = useRef(onCommit)
   commitRef.current = onCommit
+  const targetRef = useRef(target)
+  targetRef.current = target
   const [buffer, setBuffer] = useState('')
+  const [matched, setMatched] = useState<boolean[]>([])
   const [pressed, setPressed] = useState(false)
 
   const commit = useCallback(() => {
     clearTimeout(timer.current)
-    const p = pattern(state.current)
-    state.current = { ...state.current, buffer: [] }
+    const s = state.current
+    const p = pattern(s)
+    const t = targetRef.current
+    state.current = { ...s, buffer: [], presses: [] }
     setBuffer('')
-    if (p) commitRef.current(p)
+    setMatched([])
+    if (p) commitRef.current({ pattern: p, ok: t !== undefined && matchesTarget(s, t) })
   }, [])
 
   const down = useCallback(() => {
@@ -49,7 +65,8 @@ export function useSendInput({ onCommit, enabled = true }: Options) {
     sidetoneOff()
     state.current = pushPress(state.current, d)
     setBuffer(pattern(state.current))
-    if (shouldCommitNow(state.current)) commit()
+    if (targetRef.current) setMatched(elementMatches(state.current, targetRef.current))
+    if (shouldCommitNow(state.current, targetRef.current)) commit()
     else timer.current = setTimeout(commit, commitDelay(state.current))
   }, [commit])
 
@@ -101,5 +118,8 @@ export function useSendInput({ onCommit, enabled = true }: Options) {
     onContextMenu: (e: React.MouseEvent) => e.preventDefault(),
   }
 
-  return { handlers, buffer, pressed }
+  /** Unit the next press will be judged against, in ms. */
+  const unit = state.current.unit
+
+  return { handlers, buffer, matched, pressed, unit }
 }

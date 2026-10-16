@@ -12,11 +12,12 @@ import { Progress } from '@/components/ui/progress'
 import { useT } from '@/i18n'
 import { blip, vibrate } from '@/lib/audio/engine'
 import { awardBadge } from '@/lib/celebrate'
-import { DRILL_LENGTH, makeDrill, makeOptions, PASS_MARK, sendTargets, type DrillQuestion } from '@/lib/morse/drill'
+import { DRILL_LENGTH, makeDrill, PASS_MARK, sendTargets, type DrillQuestion } from '@/lib/morse/drill'
 import { GROUPS, MORSE_TABLE, prettyPattern, rhythm, type MorseChar } from '@/lib/morse/table'
 import { cn } from '@/lib/utils'
 import { usePlayMorse } from '@/hooks/usePlayMorse'
-import { useSendInput } from '@/hooks/useSendInput'
+import { useSendInput, type SendResult } from '@/hooks/useSendInput'
+import { DIT_MAX_U } from '@/lib/morse/classifier'
 import { useSession } from '@/store/session'
 
 type Step = 'meet' | 'decode' | 'send' | 'done'
@@ -126,40 +127,46 @@ function Decode({
   const [queue, setQueue] = useState<DrillQuestion[]>(() => makeDrill(group))
   const [pos, setPos] = useState(0)
   const [firstTry, setFirstTry] = useState(0)
-  const [answer, setAnswer] = useState<{ pick: MorseChar; ok: boolean } | null>(null)
+  const [wrong, setWrong] = useState<MorseChar[]>([])
+  const [lastWrong, setLastWrong] = useState(false)
+  const [solved, setSolved] = useState(false)
   const [finished, setFinished] = useState(false)
   const hints = attempt >= 2
   const q = queue[pos]
 
   useEffect(() => {
     if (!q || finished) return
-    const id = setTimeout(() => void player.play(q.target), 350)
+    const id = setTimeout(() => void player.play(q.target), 600)
     return () => clearTimeout(id)
   }, [pos, attempt, finished])
 
   const advance = () => {
-    setAnswer(null)
+    setWrong([])
+    setLastWrong(false)
+    setSolved(false)
     if (pos + 1 >= queue.length) setFinished(true)
     else setPos((p) => p + 1)
   }
 
-  const pick = async (c: MorseChar) => {
-    if (!q || answer) return
-    const ok = c === q.target
-    setAnswer({ pick: c, ok })
-    if (ok) {
+  const pick = (c: MorseChar) => {
+    if (!q || solved || wrong.includes(c)) return
+    if (c === q.target) {
+      setSolved(true)
+      setLastWrong(false)
       blip('good')
       vibrate(30)
-      setStreak((s) => s + 1)
-      if (!q.requeued) setFirstTry((n) => n + 1)
-      setTimeout(advance, 850)
+      // Only a first-try answer scores; after a miss the right pick just moves on.
+      if (wrong.length === 0) {
+        setStreak((s) => s + 1)
+        setFirstTry((n) => n + 1)
+      }
+      setTimeout(advance, 1800)
     } else {
       blip('bad')
       setStreak(0)
-      setQueue((qs) => [...qs, { target: q.target, options: makeOptions(q.target, group), requeued: true }])
-      await new Promise((r) => setTimeout(r, 450))
-      await player.play(q.target)
-      setTimeout(advance, 700)
+      setWrong((w) => [...w, c])
+      setLastWrong(true)
+      setTimeout(() => void player.play(q.target), 450)
     }
   }
 
@@ -216,26 +223,26 @@ function Decode({
       <h1 className="text-3xl font-bold">{t('learn.decode.title')}</h1>
       <div className="flex items-center justify-center gap-5 py-2">
         <SignalLamp on={player.lampOn} active={player.isPlaying} />
-        <Button variant="outline" onClick={() => void player.play(q.target)} disabled={player.isPlaying || !!answer}>
+        <Button variant="outline" onClick={() => void player.play(q.target)} disabled={player.isPlaying || solved}>
           <RotateCcw /> {t('learn.decode.replay')}
         </Button>
       </div>
       <div className={'grid grid-cols-2 gap-3'}>
         {q.options.map((c) => {
-          const isPick = answer?.pick === c
-          const isTarget = answer && c === q.target
+          const missed = wrong.includes(c)
+          const isTarget = solved && c === q.target
           return (
             <button
               key={c}
               type="button"
-              onClick={() => void pick(c)}
-              disabled={!!answer}
+              onClick={() => pick(c)}
+              disabled={solved || missed}
               className={cn(
                 'brutal press flex min-h-28 flex-col items-center justify-center gap-2 font-mono text-5xl font-bold disabled:cursor-default',
-                !answer && 'bg-card hover:bg-accent',
+                !solved && !missed && 'bg-card hover:bg-accent',
                 isTarget && 'bg-secondary',
-                isPick && !answer?.ok && 'animate-shake bg-card line-through decoration-destructive decoration-4',
-                answer && !isPick && !isTarget && 'bg-card opacity-50',
+                missed && 'animate-shake bg-card line-through decoration-destructive decoration-4 opacity-60',
+                solved && !isTarget && !missed && 'bg-card opacity-50',
               )}
             >
               {c}
@@ -244,8 +251,12 @@ function Decode({
           )
         })}
       </div>
-      <Feedback kind={answer ? (answer.ok ? 'good' : 'bad') : null}>
-        {answer && (answer.ok ? t('learn.decode.correct', { c: q.target }) : t('learn.decode.wrong', { c: q.target }))}
+      <Feedback kind={solved ? 'good' : lastWrong ? 'bad' : null}>
+        {solved
+          ? wrong.length === 0
+            ? t('learn.decode.correct', { c: q.target })
+            : t('learn.decode.gotIt', { c: q.target })
+          : lastWrong && t('learn.decode.wrong')}
       </Feedback>
     </>
   )
@@ -268,9 +279,8 @@ function Send({
   const target = targets[idx]!
   const p = MORSE_TABLE[target]!
 
-  const onCommit = async (sent: string) => {
+  const onCommit = async ({ pattern: sent, ok }: SendResult) => {
     if (result) return
-    const ok = sent === p
     setResult({ ok, got: sent })
     if (ok) {
       blip('good')
@@ -291,8 +301,10 @@ function Send({
     }
   }
 
-  const { handlers, buffer, pressed } = useSendInput({ onCommit, enabled: !player.isPlaying && !result })
-  const matched = p.startsWith(buffer) ? buffer.length : 0
+  const { handlers, buffer, matched, pressed, unit } = useSendInput({ onCommit, enabled: !player.isPlaying && !result, target: p })
+  const holding = pressed && buffer.length < p.length ? buffer.length : -1
+  // A dit fills in one unit; a dah fills when the press is long enough to count as one.
+  const fillMs = p[holding] === '-' ? DIT_MAX_U * unit : unit
 
   return (
     <>
@@ -308,7 +320,14 @@ function Send({
           </span>
         </div>
         <div className="flex flex-1 flex-col items-start gap-3">
-          <PatternGlyph pattern={p} matched={matched} activeEl={player.isPlaying ? player.activeEl : -1} size="lg" />
+          <PatternGlyph
+            pattern={p}
+            accepted={result?.ok ? [...p].map(() => true) : matched}
+            filling={holding}
+            fillMs={fillMs}
+            activeEl={player.isPlaying ? player.activeEl : -1}
+            size="lg"
+          />
           <span className="font-mono text-lg font-bold">{rhythm(p)}</span>
         </div>
         <Button size="icon" variant="outline" aria-label={t('learn.decode.replay')} onClick={() => void player.play(target)} disabled={player.isPlaying}>

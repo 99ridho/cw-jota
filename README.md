@@ -25,7 +25,7 @@ Event settings live in `.env` and are baked in at build time. None of them are s
 | `VITE_PRACTICE_URL` | `https://lcwo.net` | Target of the QR code |
 | `VITE_EVENT_LABEL` | `JOTA 2026` | Printed on the name card |
 | `VITE_TONE_HZ` | `650` | Tone pitch |
-| `VITE_SPEED_LEARN`, `VITE_SPEED_CHALLENGE` | `18/8`, `18/12` | Character/overall WPM |
+| `VITE_SPEED_LEARN`, `VITE_SPEED_CHALLENGE` | `18/8`, `18/8` | Character/overall WPM |
 | `VITE_ANALYTICS_URL` | blank (off) | GoatCounter endpoint |
 
 The callsign stays `[CALLSIGN]` until the station's real one goes into `.env`. The app icon in `public/` is a placeholder too.

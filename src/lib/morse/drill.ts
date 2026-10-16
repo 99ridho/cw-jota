@@ -7,7 +7,6 @@ export const SENDS_PER_CHAR = 2
 export interface DrillQuestion {
   target: MorseChar
   options: MorseChar[]
-  requeued?: boolean
 }
 
 export function shuffle<T>(arr: T[], rand: () => number = Math.random): T[] {

@@ -18,6 +18,7 @@ export function AppShell({ kicker, right, children, className }: Props) {
         </header>
       )}
       <main className={cn('flex flex-1 flex-col gap-5', className)}>{children}</main>
+      <footer className="mt-6 text-center text-xs text-muted-foreground">Crafted by YC3BBD (also K1DHO &amp; @99ridho)</footer>
     </div>
   )
 }
