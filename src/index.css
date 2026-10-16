@@ -111,6 +111,7 @@
   --animate-shake: shake 360ms ease-in-out;
   --animate-wiggle: wiggle 1.6s ease-in-out infinite;
   --animate-float-up: float-up 900ms ease-out forwards;
+  --animate-fill: fill linear forwards;
 
   @keyframes pop {
     0% { transform: scale(0.6); opacity: 0; }
@@ -124,6 +125,10 @@
   @keyframes wiggle {
     0%, 100% { transform: rotate(-3deg); }
     50% { transform: rotate(3deg); }
+  }
+  @keyframes fill {
+    0% { transform: scaleX(0); }
+    100% { transform: scaleX(1); }
   }
   @keyframes float-up {
     0% { transform: translateY(0); opacity: 1; }

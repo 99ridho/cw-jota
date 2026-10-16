@@ -15,7 +15,7 @@ export const ANALYTICS_URL = str(env.VITE_ANALYTICS_URL, '') || undefined
 
 export const SPEED_PRESETS = {
   learn: speed(env.VITE_SPEED_LEARN, { c: 18, s: 8 }),
-  challenge: speed(env.VITE_SPEED_CHALLENGE, { c: 18, s: 12 }),
+  challenge: speed(env.VITE_SPEED_CHALLENGE, { c: 18, s: 8 }),
 }
 
 export type PresetName = keyof typeof SPEED_PRESETS
