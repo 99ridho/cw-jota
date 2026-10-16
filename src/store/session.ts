@@ -2,7 +2,7 @@ import { create } from 'zustand'
 import type { BadgeId } from '@/lib/badges'
 import type { WordResult } from '@/lib/morse/scoring'
 import type { Level } from '@/lib/morse/levels'
-import { loadPersisted, savePersisted, type Persisted } from '@/lib/storage'
+import { loadPersisted, NO_BESTS, savePersisted, type BestKey, type Persisted } from '@/lib/storage'
 
 function detectLang(): Persisted['lang'] {
   try {
@@ -26,17 +26,17 @@ interface PersistedStore extends Persisted {
   setReduceMotion: (on: boolean) => void
   /** Returns true when the badge is new. */
   awardBadge: (id: BadgeId) => boolean
-  /** Returns true when the score beats the level's best. */
-  submitScore: (level: Level, score: number) => boolean
+  /** Returns true when the score beats the best for that level or stage. */
+  submitScore: (key: BestKey, score: number) => boolean
 }
 
 const saved = loadPersisted()
 
 export const usePersisted = create<PersistedStore>()((set, get) => ({
-  v: 2,
+  v: 3,
   lang: saved?.lang ?? detectLang(),
   nickname: saved?.nickname,
-  bests: { easy: 0, medium: 0, hard: 0, ...saved?.bests },
+  bests: { ...NO_BESTS, ...saved?.bests },
   badges: saved?.badges ?? [],
   reduceMotion: saved?.reduceMotion ?? prefersReducedMotion(),
   setLang: (lang) => set({ lang }),
@@ -47,16 +47,16 @@ export const usePersisted = create<PersistedStore>()((set, get) => ({
     set({ badges: [...get().badges, id] })
     return true
   },
-  submitScore: (level, score) => {
-    if (score <= get().bests[level]) return false
-    set({ bests: { ...get().bests, [level]: score } })
+  submitScore: (key, score) => {
+    if (score <= get().bests[key]) return false
+    set({ bests: { ...get().bests, [key]: score } })
     return true
   },
 }))
 
 usePersisted.subscribe((s) =>
   savePersisted({
-    v: 2,
+    v: 3,
     lang: s.lang,
     nickname: s.nickname,
     bests: s.bests,
@@ -66,18 +66,20 @@ usePersisted.subscribe((s) =>
 )
 
 interface SessionStore {
-  groupIndex: number
-  /** Highest learn group finished this session (0 = none). */
-  groupsDone: number
+  /** Packs finished this visit, per Easy stage (0 = none). */
+  packsDone: Record<number, number>
   /** Picked on the level screen; null until then. */
   level: Level | null
+  /** Easy stage, picked on the stage screen. */
+  stage: number
   score: number
   streak: number
   challenge: { words: string[]; results: WordResult[] }
   /** Badges earned in this run, for the finish screen highlight. */
   newBadges: BadgeId[]
-  completeGroup: (group: number) => void
+  completePack: (stage: number, pack: number) => void
   setLevel: (level: Level) => void
+  setStage: (stage: number) => void
   startChallenge: (words: string[]) => void
   recordWord: (r: WordResult) => void
   noteBadge: (id: BadgeId) => void
@@ -91,14 +93,15 @@ const freshRun = () => ({
 })
 
 export const useSession = create<SessionStore>()((set) => ({
-  groupIndex: 0,
-  groupsDone: 0,
+  packsDone: {},
   level: null,
+  stage: 1,
   newBadges: [],
   ...freshRun(),
-  completeGroup: (group) =>
-    set((s) => ({ groupsDone: Math.max(s.groupsDone, group), groupIndex: group })),
+  completePack: (stage, pack) =>
+    set((s) => ({ packsDone: { ...s.packsDone, [stage]: Math.max(s.packsDone[stage] ?? 0, pack) } })),
   setLevel: (level) => set({ level }),
+  setStage: (stage) => set({ stage }),
   startChallenge: (words) => set({ ...freshRun(), challenge: { words, results: [] } }),
   recordWord: (r) =>
     set((s) => ({

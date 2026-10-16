@@ -68,3 +68,17 @@ Date: 2026-10-16 · Status: Accepted
 Context: One best score cannot compare an Easy round with a Hard one.
 Decision: localStorage keeps `bests: { easy, medium, hard }` under `v: 2`. A `v: 1` record is migrated, with its `bestScore` becoming the Easy best, instead of being discarded.
 Consequences: Players on a shared station phone keep their earlier Easy record. The picker and Finish show the best for each level.
+
+## ADR-009: Easy split into four stages with a stage picker
+Date: 2026-10-16 · Status: Accepted
+
+Context: Easy only taught E T A N S O M, so a visitor who finished it had nowhere further to go inside Easy.
+Decision: Easy has four stages, each in packs: 1 `E T · A N · S O M` (unchanged), 2 `I R · D U · K G W`, 3 `H V · F L · P B C`, 4 `J Q · X Y Z`. Picking Easy opens `/stage`, where every stage is open. Stages 2 to 4 start with a warm-up grid of earlier letters (tap to hear, no drill) unless those stages were learned this visit. Decode distractors include letters from earlier stages. Each stage's challenge plays 5 words built from every letter through that stage, with at least one of its new letters; stage 1 keeps its SOS word. The challenge keypad shows patterns on stage 1 only, and lists larger sets A to Z. Finish offers "On to stage n". A new `a_to_z` badge marks finishing the stage 4 packs.
+Consequences: Learn routes become `/learn/:stage/:pack`. A visitor can jump to stage 3 without stages 1 and 2; the warm-up is their only exposure to those letters, which suits people who already know some Morse.
+
+## ADR-010: Personal best per Easy stage, storage v3
+Date: 2026-10-16 · Status: Accepted · Supersedes the Easy part of ADR-008
+
+Context: A stage 1 score and a stage 4 score are not comparable, the same reason ADR-008 split bests by level.
+Decision: localStorage keeps `bests: { easy1, easy2, easy3, easy4, medium, hard }` under `v: 3`. A `v: 1` best and a `v: 2` Easy best both migrate to `easy1`. The level picker shows Easy's top stage score with its stage number.
+Consequences: Existing Easy records keep their meaning, since they all came from what is now stage 1.

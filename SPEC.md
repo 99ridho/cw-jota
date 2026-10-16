@@ -52,16 +52,16 @@ Custom components: `TapPad`, `SignalLamp`, `PatternGlyph`, `LetterKeypad`, `Name
 /            Welcome: language, sound check, Start
 /hook        Mystery message plays, then reveal
 /level       Pick Easy, Medium or Hard (ADR-007)
-/learn/1     Group 1: E, T (Easy only)
-/learn/2     Group 2: A, N
-/learn/3     Group 3: S, O, M
+/stage       Easy only: pick stage 1 to 4 (ADR-009)
+/learn/:s/recap   Warm-up with every letter from earlier stages (stage 2 to 4)
+/learn/:s/:p      Stage s, pack p (see STAGES below)
 /challenge   Mystery Word challenge (5 words)
 /finish      Score, badges, name card, station and practice links
 ```
 
-Easy goes through `/learn/1..3` before the challenge (skipped if already done this visit); Medium and Hard go straight to `/challenge`. Each `/learn/:group` page has three internal steps: **Meet** → **Decode drill** → **Send drill**. Splitting practice across groups keeps every minute interactive and gives a first "I sent it" win within the first few minutes.
+Easy opens the stage picker. A stage runs its packs (`/learn/:s/1..n`), then the challenge. Stages 2 to 4 start with the warm-up unless every earlier stage was learned this visit; a stage whose packs are already done this visit goes straight to the challenge (`stageStart` in `levels.ts`). Medium and Hard go straight to `/challenge`. Each pack page has three internal steps: **Meet** → **Decode drill** → **Send drill**. Splitting practice across packs keeps every minute interactive and gives a first "I sent it" win within the first few minutes.
 
-Time budget: Hook 1 min, three learn groups about 3 min each, Challenge 3 min, Finish 1 min.
+Time budget for a first-timer on stage 1: Hook 1 min, three packs about 3 min each, Challenge 3 min, Finish 1 min. Later stages are for repeat visits or visitors who want more.
 
 **Route guard:** every route except `/` has a loader that redirects to `/` if the audio context has not been unlocked in this page load. A reload on a deep route therefore returns to the Start screen, which is the only place a user gesture can unlock audio.
 
@@ -70,36 +70,43 @@ Time budget: Hook 1 min, three learn groups about 3 min each, Challenge 3 min, F
 ## 4. Domain model
 
 ```ts
-export type MorseChar = 'E' | 'T' | 'A' | 'N' | 'S' | 'O' | 'M';
+export type MorseChar = 'A' | 'B' | ... | 'Z'; // every letter can be taught
 export type Element = '.' | '-';
 
-// Full A-Z and 0-9 table exists only to render the name-in-Morse card.
-// Only the 7 MorseChars above are ever played, taught, or scored.
-export const MORSE_TABLE: Record<string, string>; // e.g. A: '.-'
+export const MORSE_TABLE: Record<string, string>; // A-Z and 0-9, e.g. A: '.-'
 
-export const GROUPS: MorseChar[][] = [['E','T'], ['A','N'], ['S','O','M']];
+// Easy stages, each split into packs (ADR-009).
+export const STAGES: MorseChar[][][] = [
+  [['E','T'], ['A','N'], ['S','O','M']],
+  [['I','R'], ['D','U'], ['K','G','W']],
+  [['H','V'], ['F','L'], ['P','B','C']],
+  [['J','Q'], ['X','Y','Z']],
+];
 
 export type BadgeId =
   | 'first_signal'    // first correct Send
   | 'sos_master'      // SOS solved in the challenge
-  | 'all_seven'       // all 3 groups completed
+  | 'all_seven'       // stage 1 packs completed
+  | 'a_to_z'          // stage 4 packs completed
   | 'perfect_round'   // challenge with 0 misses and 0 replays
   | 'quick_ears'      // any word solved under 8 s
   | 'name_in_morse';  // name card generated
 
 // Persisted (localStorage, versioned)
 export interface Persisted {
-  v: 2;
+  v: 3;
   lang: 'en' | 'id';
   nickname?: string;
-  bests: Record<'easy' | 'medium' | 'hard', number>; // personal best per level (ADR-008)
+  bests: Record<'easy1' | 'easy2' | 'easy3' | 'easy4' | 'medium' | 'hard', number>; // per Easy stage, Medium, Hard (ADR-010)
   badges: BadgeId[];
 }
 
 // In-memory only, reset on reload
 export interface Session {
   audioUnlocked: boolean;
-  groupIndex: number;
+  level: Level | null;
+  stage: number;                     // Easy stage
+  packsDone: Record<number, number>; // packs finished this visit, per stage
   score: number;
   streak: number;
   challenge: { words: string[]; results: WordResult[] };
@@ -181,24 +188,29 @@ after a clear dah   u = 0.7*u + 0.3*(d/3)
 - Replay button, then Next to the level picker.
 
 ### 7.2b Level picker (`/level`)
-- Three stacked cards: **Easy** (E T A N S O M, with the Learn packs first), **Medium** (A to Z), **Hard** (A to Z and 0 to 9). Each shows its personal best or "No score yet".
+- Three stacked cards: **Easy** (4 stages, Learn packs first), **Medium** (A to Z), **Hard** (A to Z and 0 to 9). Medium and Hard show their personal best or "No score yet"; Easy shows its top stage score and which stage it was on.
 - Finish's "Play again" returns here.
 
-### 7.3 Learn group (`/learn/:group`)
+### 7.2c Stage picker (`/stage`)
+- Four stacked cards, all open: stage number, the letters it introduces, how many letters its words use, and that stage's best.
+- **Warm-up** (`/learn/:s/recap`): a grid of every letter from earlier stages, each tile showing its pattern and playing on tap. Continue is always enabled; nothing is drilled.
+
+### 7.3 Learn pack (`/learn/:s/:p`)
 1. **Meet:** a card per character with the glyph, the pattern, and tap-to-hear. The pattern is explained by rhythm ("di-dah"), not by chart.
-2. **Decode drill:** 6 questions per group. Options: 2 (group 1), 3 (group 2), 4 (group 3, including previously learned characters). A wrong pick strikes that option out and replays the sound, and the player keeps picking on the same question. Only a first-try answer scores; a correct pick after a miss moves on with no mark. After a correct pick the next question comes about 1.8 s later (ADR-003).
+2. **Decode drill:** 6 questions per pack. Options: 2 (pack 1), 3 (pack 2), 4 (pack 3). Distractors come from this pack first, then from every letter learned before it, earlier stages included. A wrong pick strikes that option out and replays the sound, and the player keeps picking on the same question. Only a first-try answer scores; a correct pick after a miss moves on with no mark. After a correct pick the next question comes about 1.8 s later (ADR-003).
 3. **Send drill:** the target character is shown with its pattern (guided). The player taps it out. Two correct sends per character complete the step.
 - **Unlock rule:** 5 of 6 correct in the drill, or 2 drill attempts. After two attempts the pattern is shown as a hint, so nobody gets stuck at an event. There are no dead ends.
 
 ### 7.4 Challenge (`/challenge`)
 - 5 mystery words for the picked level. Each is played, and the player enters it on `LetterKeypad` or a physical keyboard. Replay is unlimited at a small score cost.
-- **Easy:** words from `words.ts`, a curated list validated by a unit test so every word uses only the 7 characters. Examples: `SOS, SEA, NOTE, STONE, MEAT, TEAM, NAME, MOON, ONSET, MEAN`. One word is always `SOS` (earns `sos_master`). Keypad: 7 keys with patterns.
+- **Easy stage 1:** words from `WORDS` in `words.ts`, a curated list validated by a unit test so every word uses only the 7 characters. Examples: `SOS, SEA, NOTE, STONE, MEAT, TEAM, NAME, MOON, ONSET, MEAN`. One word is always `SOS` (earns `sos_master`). Keypad: 7 keys with patterns, in teaching order.
+- **Easy stages 2 to 4:** 5 from `STAGE_WORDS[stage]`, short first. A unit test checks every word uses only letters taught through that stage and at least one letter the stage introduces. Keypad: the stage's letters A to Z, no patterns (they do not fit at 14 keys and up).
 - **Medium:** 5 from `MEDIUM_WORDS` in `levels.ts` (short scout and radio words, A to Z). Keypad: 26 letters, no patterns.
 - **Hard:** 2 ham codes from `HARD_CODES` (`73`, `599`, `5NN`, `CQ`, ...) then 3 generated callsigns: an Indonesian (`YB`..`YH`) or world prefix, one digit, 1 to 3 letters, at most 6 characters. Keypad: letters with an `ABC | 123` page toggle.
-- Score, per word: 100 per correct letter, plus up to 50 speed bonus, minus 10 per replay. Streak multiplier up to 2x. Personal best is saved to local storage, one per level.
+- Score, per word: 100 per correct letter, plus up to 50 speed bonus, minus 10 per replay. Streak multiplier up to 2x. Personal best is saved to local storage, one per Easy stage plus one each for Medium and Hard.
 
 ### 7.5 Finish (`/finish`)
-- Final score vs the level's personal best, earned badges, and a Play again button back to the level picker.
+- Final score vs the personal best for that level (and stage, on Easy), earned badges, and a Play again button back to the level picker. On Easy stages 1 to 3, an "On to stage n" button starts the next stage.
 - **Name in Morse:** optional nickname input (local only), rendered as a card (letters, dits and dahs) with a play button. Export as PNG via the Web Share API with files, falling back to download.
 - Station block: callsign and "come try it live" text from config, plus a QR code to the practice app (LCWO or similar).
 
@@ -219,7 +231,7 @@ after a clear dah   u = 0.7*u + 0.3*(d/3)
 
 ### 8.3 Storage
 - `lib/storage.ts` wraps every `localStorage` read and write in `try/catch`. If storage is blocked, the game works with in-memory state.
-- Versioned key (`v: 2`). A `v: 1` record is migrated: its `bestScore` becomes the Easy best. Unknown versions are discarded.
+- Versioned key (`v: 3`). A `v: 1` record's `bestScore` and a `v: 2` record's Easy best both become the Easy stage 1 best. Unknown versions are discarded.
 
 ### 8.4 PWA and offline
 - Precache all assets, `display: standalone`, `orientation: portrait`, themed icons. Updates apply with `autoUpdate`.
@@ -295,7 +307,7 @@ src/
 |---|---|---|
 | M0 | Scaffold | Vite, Tailwind, shadcn, router, i18n, and PWA shell deploy to a static host |
 | M1 | Audio engine | Tone, scheduler, timing and Farnsworth tests pass; Welcome and Test tone work on iOS and Android |
-| M2 | Learn and decode | Meet and Decode drill for all 3 groups, with the unlock rule |
+| M2 | Learn and decode | Meet and Decode drill for every pack, with the unlock rule |
 | M3 | Send | TapPad, classifier, sidetone, guided Send drill |
 | M4 | Challenge, scoring, badges | Full loop playable start to finish, personal best persisted |
 | M5 | Finish and share | Name card export and share, station block, practice QR |

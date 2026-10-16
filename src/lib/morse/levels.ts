@@ -1,6 +1,6 @@
 import { shuffle } from './drill'
-import { MORSE_CHARS } from './table'
-import { pickChallengeWords } from './words'
+import { STAGES, stageChars } from './table'
+import { pickStageWords } from './words'
 
 export type Level = 'easy' | 'medium' | 'hard'
 export const LEVELS: Level[] = ['easy', 'medium', 'hard']
@@ -8,8 +8,25 @@ export const LEVELS: Level[] = ['easy', 'medium', 'hard']
 export const LETTERS = [...'ABCDEFGHIJKLMNOPQRSTUVWXYZ']
 export const DIGITS = [...'0123456789']
 
-export function levelChars(level: Level): string[] {
-  if (level === 'easy') return [...MORSE_CHARS]
+export const EASY_STAGES = STAGES.length
+
+/**
+ * Where picking an Easy stage leads, given the packs finished this visit.
+ * Earlier stages get a warm-up unless they were all learned this visit; a
+ * stage whose packs are done goes straight to its challenge.
+ */
+export function stageStart(stage: number, packsDone: Record<number, number>): string {
+  const packs = STAGES[stage - 1]?.length ?? 0
+  const done = packsDone[stage] ?? 0
+  if (done >= packs) return '/challenge'
+  const learnedBefore = STAGES.slice(0, stage - 1).every((p, i) => (packsDone[i + 1] ?? 0) >= p.length)
+  if (done === 0 && !learnedBefore) return `/learn/${stage}/recap`
+  return `/learn/${stage}/${done + 1}`
+}
+
+/** Characters a level can play. Easy depends on the stage. */
+export function levelChars(level: Level, stage = 1): string[] {
+  if (level === 'easy') return stageChars(stage)
   if (level === 'medium') return LETTERS
   return [...LETTERS, ...DIGITS]
 }
@@ -38,8 +55,8 @@ export function callsign(rand: () => number = Math.random): string {
   return prefix + pickOne(DIGITS, rand) + suffix
 }
 
-export function pickWords(level: Level, count = 5, rand: () => number = Math.random): string[] {
-  if (level === 'easy') return pickChallengeWords(count, rand)
+export function pickWords(level: Level, stage = 1, count = 5, rand: () => number = Math.random): string[] {
+  if (level === 'easy') return pickStageWords(stage, count, rand)
   if (level === 'medium') {
     return shuffle(MEDIUM_WORDS, rand)
       .slice(0, count)

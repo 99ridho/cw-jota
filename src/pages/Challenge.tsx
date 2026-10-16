@@ -24,19 +24,22 @@ export default function Challenge() {
   const navigate = useNavigate()
   const { challenge, score, streak, startChallenge, recordWord } = useSession()
   const level = useSession((s) => s.level) ?? 'easy'
+  const stage = useSession((s) => s.stage)
   const player = usePlayMorse('', 'challenge')
 
   // Start a fresh round unless one is already in progress.
   useEffect(() => {
     const s = useSession.getState()
     if (!s.challenge.words.length || s.challenge.results.length >= s.challenge.words.length) {
-      startChallenge(pickWords(level))
+      startChallenge(pickWords(level, stage))
     }
-  }, [startChallenge, level])
+  }, [startChallenge, level, stage])
 
   const idx = challenge.results.length
   const word = challenge.words[idx]
   const total = challenge.words.length
+  // Stage 1 keeps its seven keys in teaching order; bigger sets are easier to scan A to Z.
+  const keys = level !== 'easy' ? LETTERS : stage === 1 ? levelChars('easy', 1) : [...levelChars('easy', stage)].sort()
   const [answer, setAnswer] = useState('')
   const [replays, setReplays] = useState(0)
   const [result, setResult] = useState<WordResult | null>(null)
@@ -95,7 +98,7 @@ export default function Challenge() {
   const typeRef = useRef(type)
   typeRef.current = type
   useEffect(() => {
-    const allowed = levelChars(level)
+    const allowed = levelChars(level, stage)
     const onKey = (e: KeyboardEvent) => {
       if (e.metaKey || e.ctrlKey || e.altKey) return
       if (e.key === 'Backspace') setAnswer((a) => a.slice(0, -1))
@@ -103,7 +106,7 @@ export default function Challenge() {
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [level])
+  }, [level, stage])
 
   const replay = () => {
     if (!word) return
@@ -127,7 +130,7 @@ export default function Challenge() {
 
   return (
     <AppShell
-      kicker={`${t(`level.${level}`)} · ${t('challenge.word', { n: Math.min(idx + (result ? 0 : 1), total), total })}`}
+      kicker={`${level === 'easy' ? t('stage.n', { n: stage }) : t(`level.${level}`)} · ${t('challenge.word', { n: Math.min(idx + (result ? 0 : 1), total), total })}`}
       right={<ScoreChip score={score} streak={streak} scoreLabel={t('challenge.score')} streakLabel={t('challenge.streak')} />}
     >
       <Progress value={(idx / total) * 100} />
@@ -185,9 +188,9 @@ export default function Challenge() {
               <RotateCcw /> {player.isPlaying ? t('challenge.listen') : t('challenge.replay')}
             </Button>
             <LetterKeypad
-              chars={level === 'easy' ? levelChars('easy') : LETTERS}
+              chars={keys}
               digits={level === 'hard' ? DIGITS : undefined}
-              showPatterns={level === 'easy'}
+              showPatterns={level === 'easy' && stage === 1}
               onKey={type}
               onBackspace={() => setAnswer((a) => a.slice(0, -1))}
               backspaceLabel={t('challenge.clear')}

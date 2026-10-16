@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { callsign, HARD_CODES, levelChars, LEVELS, MEDIUM_WORDS, pickWords } from './levels'
+import { callsign, EASY_STAGES, stageStart, HARD_CODES, levelChars, LEVELS, MEDIUM_WORDS, pickWords } from './levels'
 import { MORSE_TABLE } from './table'
 
 describe('levels', () => {
@@ -32,7 +32,23 @@ describe('levels', () => {
     }
   })
 
-  it('keeps SOS on easy', () => {
-    expect(pickWords('easy')).toContain('SOS')
+  it('routes a stage pick to warm-up, the next pack, or the challenge', () => {
+    expect(stageStart(1, {})).toBe('/learn/1/1')
+    expect(stageStart(3, {})).toBe('/learn/3/recap')
+    expect(stageStart(2, { 1: 3 })).toBe('/learn/2/1')
+    expect(stageStart(2, { 1: 3, 2: 1 })).toBe('/learn/2/2')
+    expect(stageStart(4, { 4: 2 })).toBe('/challenge')
+  })
+
+  it('keeps SOS on easy stage 1', () => {
+    expect(pickWords('easy', 1)).toContain('SOS')
+  })
+
+  it('easy stages grow to the full alphabet, and words stay inside the stage', () => {
+    expect(levelChars('easy', 1)).toHaveLength(7)
+    expect([...levelChars('easy', EASY_STAGES)].sort()).toEqual([...levelChars('medium')].sort())
+    for (let s = 1; s <= EASY_STAGES; s++) {
+      for (const word of pickWords('easy', s)) for (const c of word) expect(levelChars('easy', s)).toContain(c)
+    }
   })
 })

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { QRCodeSVG } from 'qrcode.react'
 import { toast } from 'sonner'
-import { Download, Lock, Play, RotateCcw, Share2, Trophy } from 'lucide-react'
+import { ArrowRight, Download, Lock, Play, RotateCcw, Share2, Trophy } from 'lucide-react'
 import { AppShell, Sticker } from '@/components/AppShell'
 import { NameCard } from '@/components/NameCard'
 import { Button } from '@/components/ui/button'
@@ -12,6 +12,8 @@ import { useT } from '@/i18n'
 import { BADGES } from '@/lib/badges'
 import { renderNameCard, shareOrDownload } from '@/lib/cardImage'
 import { awardBadge } from '@/lib/celebrate'
+import { EASY_STAGES, stageStart } from '@/lib/morse/levels'
+import { bestKey } from '@/lib/storage'
 import { cn } from '@/lib/utils'
 import { usePlayMorse } from '@/hooks/usePlayMorse'
 import { usePersisted, useSession } from '@/store/session'
@@ -21,18 +23,19 @@ const cleanName = (s: string) => s.toUpperCase().replace(/[^A-Z0-9 ]/g, '').slic
 export default function Finish() {
   const t = useT()
   const navigate = useNavigate()
-  const { score, newBadges, resetRun } = useSession()
+  const { score, newBadges, resetRun, stage, setStage, packsDone } = useSession()
   const level = useSession((s) => s.level) ?? 'easy'
+  const key = bestKey(level, stage)
   const { bests, badges, lang, nickname, setNickname, submitScore } = usePersisted()
-  const [prevBest] = useState(bests[level])
+  const [prevBest] = useState(bests[key])
   const [isNewBest, setIsNewBest] = useState(false)
   const submitted = useRef(false)
 
   useEffect(() => {
     if (submitted.current) return
     submitted.current = true
-    setIsNewBest(submitScore(level, score))
-  }, [level, score, submitScore])
+    setIsNewBest(submitScore(key, score))
+  }, [key, score, submitScore])
 
   const [draft, setDraft] = useState(nickname ?? '')
   const [cardName, setCardName] = useState<string | null>(null)
@@ -67,7 +70,7 @@ export default function Finish() {
         <p className="label-mono">{t('finish.score')}</p>
         <p className="font-mono text-6xl font-bold">{score}</p>
         <p className="font-mono text-sm font-bold">
-          {t('finish.best', { level: t(`level.${level}`) })}: {Math.max(prevBest, score)}
+          {t('finish.best', { level: level === 'easy' ? `${t('level.easy')} · ${t('stage.n', { n: stage })}` : t(`level.${level}`) })}: {Math.max(prevBest, score)}
         </p>
       </section>
 
@@ -98,6 +101,18 @@ export default function Finish() {
         </ul>
       </section>
 
+      {level === 'easy' && stage < EASY_STAGES && (
+        <Button
+          size="lg"
+          onClick={() => {
+            resetRun()
+            setStage(stage + 1)
+            navigate(stageStart(stage + 1, packsDone))
+          }}
+        >
+          {t('finish.nextStage', { n: stage + 1 })} <ArrowRight />
+        </Button>
+      )}
       <Button
         variant="accent"
         onClick={() => {

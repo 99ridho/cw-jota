@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 # cw-jota
 
-Morse mini-game for a JOTA station: a phone web app where a first-timer learns E, T, A, N, S, O, M in three packs, decodes mystery words, and leaves with a name-in-Morse card. `SPEC.md` is the spec; `README.md` covers develop, configure, and deploy. `ADR.md` records approved decisions.
+Morse mini-game for a JOTA station: a phone web app where a first-timer learns E, T, A, N, S, O, M in three packs (Easy stage 1 of 4; later stages reach Z), decodes mystery words, and leaves with a name-in-Morse card. `SPEC.md` is the spec; `README.md` covers develop, configure, and deploy. `ADR.md` records approved decisions.
 
 ## Commands
 
@@ -21,7 +21,7 @@ Run `npm run lint` and `npm test` before committing.
 
 ## Architecture
 
-- **Flow:** `src/routes.tsx` maps Welcome `/` → Hook → `/level` → (Easy: `/learn/1..3`) → Challenge → Finish. Levels, their character sets, and word pickers live in `src/lib/morse/levels.ts`. Audio can only be unlocked by a gesture on Welcome, so every later route's loader redirects to `/` until `isUnlocked()`.
+- **Flow:** `src/routes.tsx` maps Welcome `/` → Hook → `/level` → (Easy: `/stage` → `/learn/:stage/recap` → `/learn/:stage/:pack`) → Challenge → Finish. Stages and packs are `STAGES` in `src/lib/morse/table.ts`; levels, their character sets, word pickers, and `stageStart` live in `src/lib/morse/levels.ts`. Audio can only be unlocked by a gesture on Welcome, so every later route's loader redirects to `/` until `isUnlocked()`.
 - **Timing is pure:** `src/lib/morse/timing.ts` turns text + a Farnsworth `SpeedPreset` into a tone schedule. `src/lib/audio/engine.ts` plays it on `audioCtx.currentTime` (never `setTimeout`), and `src/hooks/usePlayMorse.ts` drives the lamp and glyph visuals from the same schedule with rAF, so sound and visuals cannot drift.
 - **Send input:** `src/hooks/useSendInput.ts` (pointer + Space key, sidetone) feeds presses to the pure adaptive classifier in `src/lib/morse/classifier.ts`.
 - **Drills and scoring** are pure modules in `src/lib/morse/` (`drill.ts`, `scoring.ts`, `words.ts`) with unit tests; pages in `src/pages/` hold the UI state.

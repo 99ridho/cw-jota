@@ -12,8 +12,9 @@ import { Progress } from '@/components/ui/progress'
 import { useT } from '@/i18n'
 import { blip, vibrate } from '@/lib/audio/engine'
 import { awardBadge } from '@/lib/celebrate'
-import { DRILL_LENGTH, makeDrill, PASS_MARK, sendTargets, type DrillQuestion } from '@/lib/morse/drill'
-import { GROUPS, MORSE_TABLE, prettyPattern, rhythm, type MorseChar } from '@/lib/morse/table'
+import { DRILL_LENGTH, learnedThrough, makeDrill, packChars, PASS_MARK, sendTargets, type DrillQuestion } from '@/lib/morse/drill'
+import { LETTERS } from '@/lib/morse/levels'
+import { MORSE_TABLE, prettyPattern, rhythm, STAGES, type MorseChar } from '@/lib/morse/table'
 import { cn } from '@/lib/utils'
 import { usePlayMorse } from '@/hooks/usePlayMorse'
 import { useSendInput, type SendResult } from '@/hooks/useSendInput'
@@ -25,19 +26,21 @@ const STEP_INDEX: Record<Step, number> = { meet: 0, decode: 1, send: 2, done: 3 
 const CARD_COLORS = ['bg-accent', 'bg-info', 'bg-pink']
 
 export default function Learn() {
-  const { group } = useParams()
-  return <LearnGroup key={group} group={Number(group)} />
+  const params = useParams()
+  const stage = Number(params.stage)
+  const pack = Number(params.pack)
+  return <LearnPack key={`${stage}-${pack}`} stage={stage} pack={pack} />
 }
 
-function LearnGroup({ group }: { group: number }) {
+function LearnPack({ stage, pack }: { stage: number; pack: number }) {
   const t = useT()
   const [step, setStep] = useState<Step>('meet')
   const [streak, setStreak] = useState(0)
-  const chars = GROUPS[group - 1]!
+  const chars = packChars(stage, pack)
 
   return (
     <AppShell
-      kicker={t('learn.group', { n: group })}
+      kicker={t('learn.group', { s: stage, n: pack, total: STAGES[stage - 1]!.length })}
       right={
         streak > 1 && (
           <span key={streak} className="brutal flex animate-pop items-center gap-1 bg-pink px-2 py-1 font-mono text-sm font-bold">
@@ -48,9 +51,9 @@ function LearnGroup({ group }: { group: number }) {
     >
       <StepBar steps={[t('learn.step.meet'), t('learn.step.decode'), t('learn.step.send')]} current={STEP_INDEX[step]} />
       {step === 'meet' && <Meet chars={chars} onDone={() => setStep('decode')} />}
-      {step === 'decode' && <Decode group={group} setStreak={setStreak} onDone={() => setStep('send')} />}
-      {step === 'send' && <Send group={group} setStreak={setStreak} onDone={() => setStep('done')} />}
-      {step === 'done' && <Done group={group} chars={chars} />}
+      {step === 'decode' && <Decode stage={stage} pack={pack} setStreak={setStreak} onDone={() => setStep('send')} />}
+      {step === 'send' && <Send stage={stage} pack={pack} setStreak={setStreak} onDone={() => setStep('done')} />}
+      {step === 'done' && <Done stage={stage} pack={pack} chars={chars} />}
     </AppShell>
   )
 }
@@ -113,18 +116,20 @@ function Meet({ chars, onDone }: { chars: MorseChar[]; onDone: () => void }) {
 }
 
 function Decode({
-  group,
+  stage,
+  pack,
   setStreak,
   onDone,
 }: {
-  group: number
+  stage: number
+  pack: number
   setStreak: React.Dispatch<React.SetStateAction<number>>
   onDone: () => void
 }) {
   const t = useT()
   const player = usePlayMorse()
   const [attempt, setAttempt] = useState(1)
-  const [queue, setQueue] = useState<DrillQuestion[]>(() => makeDrill(group))
+  const [queue, setQueue] = useState<DrillQuestion[]>(() => makeDrill(stage, pack))
   const [pos, setPos] = useState(0)
   const [firstTry, setFirstTry] = useState(0)
   const [wrong, setWrong] = useState<MorseChar[]>([])
@@ -196,7 +201,7 @@ function Decode({
               className="w-full"
               onClick={() => {
                 setAttempt(2)
-                setQueue(makeDrill(group))
+                setQueue(makeDrill(stage, pack))
                 setPos(0)
                 setFirstTry(0)
                 setFinished(false)
@@ -263,17 +268,19 @@ function Decode({
 }
 
 function Send({
-  group,
+  stage,
+  pack,
   setStreak,
   onDone,
 }: {
-  group: number
+  stage: number
+  pack: number
   setStreak: React.Dispatch<React.SetStateAction<number>>
   onDone: () => void
 }) {
   const t = useT()
   const player = usePlayMorse()
-  const targets = useRef(sendTargets(group)).current
+  const targets = useRef(sendTargets(stage, pack)).current
   const [idx, setIdx] = useState(0)
   const [result, setResult] = useState<{ ok: boolean; got: string } | null>(null)
   const target = targets[idx]!
@@ -350,43 +357,47 @@ function Send({
   )
 }
 
-function Done({ group, chars }: { group: number; chars: MorseChar[] }) {
+function Done({ stage, pack, chars }: { stage: number; pack: number; chars: MorseChar[] }) {
   const t = useT()
   const navigate = useNavigate()
-  const completeGroup = useSession((s) => s.completeGroup)
+  const completePack = useSession((s) => s.completePack)
+  const setStage = useSession((s) => s.setStage)
+  const last = pack >= STAGES[stage - 1]!.length
+  const known = learnedThrough(stage, pack)
 
   useEffect(() => {
-    completeGroup(group)
+    completePack(stage, pack)
+    setStage(stage)
     blip('fanfare')
-    if (group === GROUPS.length) awardBadge('all_seven')
-  }, [group, completeGroup])
+    if (last && stage === 1) awardBadge('all_seven')
+    if (last && stage === STAGES.length) awardBadge('a_to_z')
+  }, [stage, pack, last, completePack, setStage])
 
-  const last = group >= GROUPS.length
   return (
     <div className="flex flex-1 flex-col gap-6">
       <div className="brutal relative flex animate-pop flex-col items-center gap-4 bg-secondary px-4 py-8 text-center">
         <Sticker className="absolute -top-4 -right-2 rotate-6 bg-pink">+{chars.length}</Sticker>
         <p className="text-4xl font-bold">{t('learn.send.done')}</p>
         <div className="flex flex-wrap justify-center gap-2">
-          {GROUPS.slice(0, group)
-            .flat()
-            .map((c, i) => (
-              <span
-                key={c}
-                className={cn(
-                  'flex size-12 items-center justify-center border-[3px] border-border font-mono text-2xl font-bold',
-                  chars.includes(c) ? 'bg-accent' : 'bg-card',
-                )}
-                style={{ rotate: `${(i % 2 ? 1 : -1) * 3}deg` }}
-              >
-                {c}
-              </span>
-            ))}
+          {known.map((c, i) => (
+            <span
+              key={c}
+              className={cn(
+                'flex size-12 items-center justify-center border-[3px] border-border font-mono text-2xl font-bold',
+                chars.includes(c) ? 'bg-accent' : 'bg-card',
+              )}
+              style={{ rotate: `${(i % 2 ? 1 : -1) * 3}deg` }}
+            >
+              {c}
+            </span>
+          ))}
         </div>
-        <p className="font-mono font-bold">{GROUPS.slice(0, group).flat().length} / 7</p>
+        <p className="font-mono font-bold">
+          {known.length} / {LETTERS.length}
+        </p>
       </div>
       <div className="mt-auto">
-        <Button size="xl" className="w-full" onClick={() => navigate(last ? '/challenge' : `/learn/${group + 1}`)}>
+        <Button size="xl" className="w-full" onClick={() => navigate(last ? '/challenge' : `/learn/${stage}/${pack + 1}`)}>
           {last ? t('learn.toChallenge') : t('learn.next')} <ArrowRight className="size-6" />
         </Button>
       </div>
