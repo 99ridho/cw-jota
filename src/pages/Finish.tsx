@@ -22,16 +22,17 @@ export default function Finish() {
   const t = useT()
   const navigate = useNavigate()
   const { score, newBadges, resetRun } = useSession()
-  const { bestScore, badges, lang, nickname, setNickname, submitScore } = usePersisted()
-  const [prevBest] = useState(bestScore)
+  const level = useSession((s) => s.level) ?? 'easy'
+  const { bests, badges, lang, nickname, setNickname, submitScore } = usePersisted()
+  const [prevBest] = useState(bests[level])
   const [isNewBest, setIsNewBest] = useState(false)
   const submitted = useRef(false)
 
   useEffect(() => {
     if (submitted.current) return
     submitted.current = true
-    setIsNewBest(submitScore(score))
-  }, [score, submitScore])
+    setIsNewBest(submitScore(level, score))
+  }, [level, score, submitScore])
 
   const [draft, setDraft] = useState(nickname ?? '')
   const [cardName, setCardName] = useState<string | null>(null)
@@ -66,7 +67,7 @@ export default function Finish() {
         <p className="label-mono">{t('finish.score')}</p>
         <p className="font-mono text-6xl font-bold">{score}</p>
         <p className="font-mono text-sm font-bold">
-          {t('finish.best')}: {Math.max(prevBest, score)}
+          {t('finish.best', { level: t(`level.${level}`) })}: {Math.max(prevBest, score)}
         </p>
       </section>
 
@@ -101,7 +102,7 @@ export default function Finish() {
         variant="accent"
         onClick={() => {
           resetRun()
-          navigate('/challenge')
+          navigate('/level')
         }}
       >
         <RotateCcw /> {t('finish.retry')}

@@ -64,12 +64,13 @@ export default function Welcome() {
         <SignalLamp on={tone.lampOn} active={tone.isPlaying} />
         <div className="flex flex-col gap-3">
           <PatternGlyph pattern="-.-.-" size="sm" />
-          <div className="grid grid-cols-4 gap-1.5">
-            {['E', 'T', 'A', 'N', 'S', 'O', 'M'].map((c, i) => (
+          {/* One tile per level, previewing what the level picker offers. */}
+          <div className="flex flex-wrap gap-1.5">
+            {['ETANSOM', 'A–Z', '0–9'].map((c, i) => (
               <span
                 key={c}
-                className="flex size-8 items-center justify-center border-2 border-border bg-accent font-mono text-lg font-bold"
-                style={{ rotate: `${(i % 2 ? 1 : -1) * (2 + (i % 3))}deg` }}
+                className="flex h-8 items-center justify-center border-2 border-border bg-accent px-2 font-mono text-lg font-bold"
+                style={{ rotate: `${(i % 2 ? 1 : -1) * (2 + i)}deg` }}
               >
                 {c}
               </span>

@@ -1,6 +1,6 @@
 # Morse Mini-Game (JOTA)
 
-A phone web app for the Jamboree On The Air station. A first-timer hears the Morse mystery message, learns 7 letters (E, T, A, N, S, O, M) in three packs, decodes five mystery words, and leaves with a name-in-Morse card and a link to keep practicing. It runs offline after the first load, needs no account, and keeps nothing off the device. See `SPEC.md` for the full spec.
+A phone web app for the Jamboree On The Air station. A visitor hears the Morse mystery message and picks a level. Easy teaches 7 letters (E, T, A, N, S, O, M) in three packs first, Medium uses A to Z, and Hard adds digits with callsigns and ham codes. Then they decode five mystery words, and leave with a name-in-Morse card and a link to keep practicing. It runs offline after the first load, needs no account, and keeps nothing off the device. See `SPEC.md` for the full spec.
 
 ## Develop
 

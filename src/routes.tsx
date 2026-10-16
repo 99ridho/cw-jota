@@ -30,6 +30,7 @@ export const router = createBrowserRouter([
     children: [
       { path: '/', element: <Welcome /> },
       { path: '/hook', lazy: page(() => import('@/pages/Hook')), loader: requireAudio },
+      { path: '/level', lazy: page(() => import('@/pages/Level')), loader: requireAudio },
       {
         path: '/learn/:group',
         lazy: page(() => import('@/pages/Learn')),

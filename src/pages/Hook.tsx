@@ -84,7 +84,7 @@ export default function Hook() {
             <Eye /> {t('hook.reveal')}
           </Button>
         ) : (
-          <Button size="xl" onClick={() => navigate('/learn/1')}>
+          <Button size="xl" onClick={() => navigate('/level')}>
             {t('hook.next')} <ArrowRight className="size-6" />
           </Button>
         )}

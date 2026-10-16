@@ -47,3 +47,24 @@ Date: 2026-10-16 · Status: Accepted
 Context: Challenge letters at 18 WPM felt right, but the 18/12 letter gaps (about 0.46 s) left no time to think between letters.
 Decision: The challenge preset is 18/8: letters stay at 18 WPM and letter gaps grow to about 0.86 s, the same timing as the learn preset.
 Consequences: Words take longer to play. `VITE_SPEED_CHALLENGE` can still override it per event.
+
+## ADR-006: Commit directly to main
+Date: 2026-10-16 · Status: Accepted
+
+Context: Iteration 2 went on a branch that the owner then merged by hand.
+Decision: Work is committed straight to `main` once lint and tests pass. No feature branches.
+Consequences: Every commit on `main` must be complete and verified, since there is no review branch in between.
+
+## ADR-007: Three difficulty levels, picked after the Hook
+Date: 2026-10-16 · Status: Accepted
+
+Context: The challenge only used the 7 taught letters, so visitors who already know Morse had nothing to play.
+Decision: A level picker (`/level`) follows the Hook. Easy keeps today's flow (Learn packs, then 7-letter words). Medium skips Learn and uses A to Z words. Hard skips Learn and mixes 2 ham codes with 3 generated callsigns (Indonesian `YB`..`YH` and world prefixes). All levels share the 18/8 challenge speed and the same scoring. The homepage no longer promises "learn 7 letters" and previews the three levels instead.
+Consequences: Medium and Hard play characters the app never teaches, which is intended for experienced visitors. The keypad grows to 26 keys (plus a digits page on Hard), so patterns are shown on Easy only.
+
+## ADR-008: Personal best per level, storage v2
+Date: 2026-10-16 · Status: Accepted
+
+Context: One best score cannot compare an Easy round with a Hard one.
+Decision: localStorage keeps `bests: { easy, medium, hard }` under `v: 2`. A `v: 1` record is migrated, with its `bestScore` becoming the Easy best, instead of being discarded.
+Consequences: Players on a shared station phone keep their earlier Easy record. The picker and Finish show the best for each level.

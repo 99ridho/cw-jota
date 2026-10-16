@@ -2,7 +2,7 @@
 
 Status: Draft v1
 Owner: Ridho
-Scope: one-off event web app for the Jamboree On The Air (JOTA) station. A first-timer learns 7 Morse characters, sends and decodes them, and leaves with a shareable card and a pointer to the live station.
+Scope: one-off event web app for the Jamboree On The Air (JOTA) station. A visitor picks a level: a first-timer learns 7 Morse characters and sends and decodes them, while someone who knows Morse goes straight to A to Z or letters plus digits. Everyone leaves with a shareable card and a pointer to the live station.
 
 ---
 
@@ -51,14 +51,15 @@ Custom components: `TapPad`, `SignalLamp`, `PatternGlyph`, `LetterKeypad`, `Name
 ```
 /            Welcome: language, sound check, Start
 /hook        Mystery message plays, then reveal
-/learn/1     Group 1: E, T
+/level       Pick Easy, Medium or Hard (ADR-007)
+/learn/1     Group 1: E, T (Easy only)
 /learn/2     Group 2: A, N
 /learn/3     Group 3: S, O, M
 /challenge   Mystery Word challenge (5 words)
 /finish      Score, badges, name card, station and practice links
 ```
 
-Each `/learn/:group` page has three internal steps: **Meet** → **Decode drill** → **Send drill**. Splitting practice across groups keeps every minute interactive and gives a first "I sent it" win within the first few minutes.
+Easy goes through `/learn/1..3` before the challenge (skipped if already done this visit); Medium and Hard go straight to `/challenge`. Each `/learn/:group` page has three internal steps: **Meet** → **Decode drill** → **Send drill**. Splitting practice across groups keeps every minute interactive and gives a first "I sent it" win within the first few minutes.
 
 Time budget: Hook 1 min, three learn groups about 3 min each, Challenge 3 min, Finish 1 min.
 
@@ -88,10 +89,10 @@ export type BadgeId =
 
 // Persisted (localStorage, versioned)
 export interface Persisted {
-  v: 1;
+  v: 2;
   lang: 'en' | 'id';
   nickname?: string;
-  bestScore: number;
+  bests: Record<'easy' | 'medium' | 'hard', number>; // personal best per level (ADR-008)
   badges: BadgeId[];
 }
 
@@ -105,7 +106,7 @@ export interface Session {
 }
 ```
 
-Persisted data is only language, optional nickname, best score and badges. Nothing is transmitted.
+Persisted data is only language, optional nickname, best score per level, and badges. Nothing is transmitted.
 
 ---
 
@@ -177,7 +178,11 @@ after a clear dah   u = 0.7*u + 0.3*(d/3)
 ### 7.2 Hook (`/hook`)
 - Copy: "Something is calling you…". The mystery message plays with the `SignalLamp` blinking and the pattern shown as dits and dahs.
 - Tap to reveal the decoded text. The message comes from `config.HOOK_MESSAGE` (for example `JOTA`), since the hook comes before any learning.
-- Replay button, then Next.
+- Replay button, then Next to the level picker.
+
+### 7.2b Level picker (`/level`)
+- Three stacked cards: **Easy** (E T A N S O M, with the Learn packs first), **Medium** (A to Z), **Hard** (A to Z and 0 to 9). Each shows its personal best or "No score yet".
+- Finish's "Play again" returns here.
 
 ### 7.3 Learn group (`/learn/:group`)
 1. **Meet:** a card per character with the glyph, the pattern, and tap-to-hear. The pattern is explained by rhythm ("di-dah"), not by chart.
@@ -186,12 +191,14 @@ after a clear dah   u = 0.7*u + 0.3*(d/3)
 - **Unlock rule:** 5 of 6 correct in the drill, or 2 drill attempts. After two attempts the pattern is shown as a hint, so nobody gets stuck at an event. There are no dead ends.
 
 ### 7.4 Challenge (`/challenge`)
-- 5 mystery words from the learned set. Each is played, and the player enters it on `LetterKeypad` (7 keys only). Replay is unlimited at a small score cost.
-- Words are drawn from `words.ts`, a curated list validated by a unit test so every word uses only the 7 characters. Examples: `SOS, SEA, NOTE, STONE, MEAT, TEAM, NAME, MOON, ONSET, MEAN`. One word is always `SOS` (earns `sos_master`).
-- Score, per word: 100 per correct letter, plus up to 50 speed bonus, minus 10 per replay. Streak multiplier up to 2x. Personal best is saved to local storage.
+- 5 mystery words for the picked level. Each is played, and the player enters it on `LetterKeypad` or a physical keyboard. Replay is unlimited at a small score cost.
+- **Easy:** words from `words.ts`, a curated list validated by a unit test so every word uses only the 7 characters. Examples: `SOS, SEA, NOTE, STONE, MEAT, TEAM, NAME, MOON, ONSET, MEAN`. One word is always `SOS` (earns `sos_master`). Keypad: 7 keys with patterns.
+- **Medium:** 5 from `MEDIUM_WORDS` in `levels.ts` (short scout and radio words, A to Z). Keypad: 26 letters, no patterns.
+- **Hard:** 2 ham codes from `HARD_CODES` (`73`, `599`, `5NN`, `CQ`, ...) then 3 generated callsigns: an Indonesian (`YB`..`YH`) or world prefix, one digit, 1 to 3 letters, at most 6 characters. Keypad: letters with an `ABC | 123` page toggle.
+- Score, per word: 100 per correct letter, plus up to 50 speed bonus, minus 10 per replay. Streak multiplier up to 2x. Personal best is saved to local storage, one per level.
 
 ### 7.5 Finish (`/finish`)
-- Final score vs personal best, earned badges, and a retry button.
+- Final score vs the level's personal best, earned badges, and a Play again button back to the level picker.
 - **Name in Morse:** optional nickname input (local only), rendered as a card (letters, dits and dahs) with a play button. Export as PNG via the Web Share API with files, falling back to download.
 - Station block: callsign and "come try it live" text from config, plus a QR code to the practice app (LCWO or similar).
 
@@ -212,7 +219,7 @@ after a clear dah   u = 0.7*u + 0.3*(d/3)
 
 ### 8.3 Storage
 - `lib/storage.ts` wraps every `localStorage` read and write in `try/catch`. If storage is blocked, the game works with in-memory state.
-- Versioned key (`v: 1`) so a future change can migrate or discard old data.
+- Versioned key (`v: 2`). A `v: 1` record is migrated: its `bestScore` becomes the Easy best. Unknown versions are discarded.
 
 ### 8.4 PWA and offline
 - Precache all assets, `display: standalone`, `orientation: portrait`, themed icons. Updates apply with `autoUpdate`.

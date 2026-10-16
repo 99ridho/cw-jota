@@ -12,8 +12,7 @@ import { useT } from '@/i18n'
 import { blip, vibrate } from '@/lib/audio/engine'
 import { awardBadge } from '@/lib/celebrate'
 import { multiplier, scoreWord, SPEED_BONUS_WINDOW_S, type WordResult } from '@/lib/morse/scoring'
-import type { MorseChar } from '@/lib/morse/table'
-import { pickChallengeWords } from '@/lib/morse/words'
+import { DIGITS, LETTERS, levelChars, pickWords } from '@/lib/morse/levels'
 import { cn } from '@/lib/utils'
 import { usePlayMorse } from '@/hooks/usePlayMorse'
 import { useSession } from '@/store/session'
@@ -24,15 +23,16 @@ export default function Challenge() {
   const t = useT()
   const navigate = useNavigate()
   const { challenge, score, streak, startChallenge, recordWord } = useSession()
+  const level = useSession((s) => s.level) ?? 'easy'
   const player = usePlayMorse('', 'challenge')
 
   // Start a fresh round unless one is already in progress.
   useEffect(() => {
     const s = useSession.getState()
     if (!s.challenge.words.length || s.challenge.results.length >= s.challenge.words.length) {
-      startChallenge(pickChallengeWords())
+      startChallenge(pickWords(level))
     }
-  }, [startChallenge])
+  }, [startChallenge, level])
 
   const idx = challenge.results.length
   const word = challenge.words[idx]
@@ -84,12 +84,26 @@ export default function Challenge() {
     }
   }
 
-  const type = (c: MorseChar) => {
+  const type = (c: string) => {
     if (!word || result || answer.length >= word.length) return
     const next = answer + c
     setAnswer(next)
     if (next.length === word.length) setTimeout(() => submit(next), 250)
   }
+
+  // Physical keyboard: the level's characters type, Backspace undoes.
+  const typeRef = useRef(type)
+  typeRef.current = type
+  useEffect(() => {
+    const allowed = levelChars(level)
+    const onKey = (e: KeyboardEvent) => {
+      if (e.metaKey || e.ctrlKey || e.altKey) return
+      if (e.key === 'Backspace') setAnswer((a) => a.slice(0, -1))
+      else if (allowed.includes(e.key.toUpperCase())) typeRef.current(e.key.toUpperCase())
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [level])
 
   const replay = () => {
     if (!word) return
@@ -113,7 +127,7 @@ export default function Challenge() {
 
   return (
     <AppShell
-      kicker={t('challenge.word', { n: Math.min(idx + (result ? 0 : 1), total), total })}
+      kicker={`${t(`level.${level}`)} · ${t('challenge.word', { n: Math.min(idx + (result ? 0 : 1), total), total })}`}
       right={<ScoreChip score={score} streak={streak} scoreLabel={t('challenge.score')} streakLabel={t('challenge.streak')} />}
     >
       <Progress value={(idx / total) * 100} />
@@ -124,7 +138,7 @@ export default function Challenge() {
 
       <div className="brutal flex flex-col items-center gap-5 bg-ink px-4 py-6">
         <SignalLamp on={player.lampOn} active={player.isPlaying} />
-        <div className="flex gap-2" aria-label={t('challenge.type')}>
+        <div className="flex max-w-full gap-2" aria-label={t('challenge.type')}>
           {[...shown].map((ch, i) => {
             const typed = result ? result.answer[i] : answer[i]
             const right = result && typed === ch
@@ -132,7 +146,7 @@ export default function Challenge() {
               <span
                 key={i}
                 className={cn(
-                  'flex h-16 w-12 flex-col items-center justify-center border-[3px] border-background font-mono text-3xl font-bold',
+                  'flex h-16 w-12 min-w-0 shrink flex-col items-center justify-center border-[3px] border-background font-mono text-3xl font-bold',
                   !result && (typed ? 'animate-pop bg-accent text-ink' : 'text-background/50'),
                   result && (right ? 'bg-secondary text-ink' : 'bg-card text-ink'),
                 )}
@@ -170,7 +184,16 @@ export default function Challenge() {
             <Button variant="outline" onClick={replay} disabled={player.isPlaying}>
               <RotateCcw /> {player.isPlaying ? t('challenge.listen') : t('challenge.replay')}
             </Button>
-            <LetterKeypad onKey={type} onBackspace={() => setAnswer((a) => a.slice(0, -1))} backspaceLabel={t('challenge.clear')} />
+            <LetterKeypad
+              chars={level === 'easy' ? levelChars('easy') : LETTERS}
+              digits={level === 'hard' ? DIGITS : undefined}
+              showPatterns={level === 'easy'}
+              onKey={type}
+              onBackspace={() => setAnswer((a) => a.slice(0, -1))}
+              backspaceLabel={t('challenge.clear')}
+              lettersLabel={t('challenge.keys.letters')}
+              digitsLabel={t('challenge.keys.digits')}
+            />
           </>
         )}
       </div>
