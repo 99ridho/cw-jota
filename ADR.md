@@ -117,3 +117,10 @@ Date: 2026-10-17 · Status: Accepted · Amends ADR-011
 Context: In dark mode the hard offset shadows were near-black on a charcoal page, so cards and buttons lost their lifted, pressable look.
 Decision: In dark mode `--shadow-color` matches the paper-colored border, so every brutal shadow (cards, buttons, tap pad, lit lamp) shows as a light offset.
 Consequences: The press effect (shadow collapsing on tap) stays visible in dark mode. Light mode is unchanged.
+
+## ADR-016: Install offer on the Finish screen
+Date: 2026-10-17 · Status: Accepted
+
+Context: The app already had a manifest and an offline service worker, but players could only install it from the browser menu, which first-timers at the station don't find.
+Decision: Finish shows a "Keep it on your phone" section after the station card. Browsers with an install prompt get an Add to home screen button; iOS Safari gets the Share, Add to Home Screen steps. Nothing shows when already installed or when the browser can't install. The manifest gains `id`, `start_url`, `scope`, `lang`, and a padded maskable icon; `index.html` gains the iOS web-app meta tags.
+Consequences: Players can keep practicing offline after the event from a home-screen icon. The offer stays off Welcome so it does not compete with starting the game. Install needs HTTPS outside localhost.

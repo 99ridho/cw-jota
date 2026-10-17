@@ -12,11 +12,15 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['icon.svg'],
+      includeAssets: ['icon.svg', 'apple-touch-icon.png'],
       manifest: {
         name: 'Morse Mini-Game · JOTA',
         short_name: 'Morse JOTA',
-        description: 'Learn, hear and send 7 Morse characters in 10 minutes.',
+        description: 'Hear Morse code, pick a level, and decode mystery words. JOTA station mini-game.',
+        id: '/',
+        start_url: '/',
+        scope: '/',
+        lang: 'en',
         display: 'standalone',
         orientation: 'portrait',
         background_color: '#f8eace',
@@ -25,7 +29,7 @@ export default defineConfig({
           { src: 'icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' },
           { src: 'icon-192.png', sizes: '192x192', type: 'image/png' },
           { src: 'icon-512.png', sizes: '512x512', type: 'image/png' },
-          { src: 'icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+          { src: 'icon-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
         ],
       },
       workbox: {

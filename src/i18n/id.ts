@@ -110,6 +110,12 @@ export const id: Dict = {
   'finish.station.title': 'Mau coba yang asli?',
   'finish.station.callsign': 'Stasiun',
   'finish.practice': 'Terus berlatih di rumah',
+  'finish.install.title': 'Simpan di HP-mu',
+  'finish.install.body': 'Pasang game ini di layar utama. Terbuka seperti aplikasi dan tetap jalan tanpa sinyal.',
+  'finish.install.button': 'Pasang di layar utama',
+  'finish.install.done': 'Terpasang. Cari Morse JOTA di layar utama.',
+  'finish.install.ios1': 'Ketuk Bagikan di bilah Safari.',
+  'finish.install.ios2': 'Pilih Tambah ke Layar Utama.',
 
   'badge.first_signal.name': 'Sinyal Pertama',
   'badge.first_signal.desc': 'Mengirim karakter pertamamu',

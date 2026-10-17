@@ -11,7 +11,7 @@ Scope: one-off event web app for the Jamboree On The Air (JOTA) station. A visit
 ### Goals
 - A first-timer hears, decodes and sends Morse within 5 minutes with no outside instructions.
 - A full session takes 10 to 15 minutes and ends with a clear payoff (badges, personal best, name-in-Morse card).
-- Works on the player's own phone, scanned from a QR code, with no install and no account.
+- Works on the player's own phone, scanned from a QR code, with no account. Installing to the home screen is offered on Finish but never required.
 - Bilingual: Indonesian and English.
 - Fully static: no backend, no accounts, no data leaves the device.
 
@@ -242,6 +242,8 @@ after a clear dah   u = 0.7*u + 0.3*(d/3)
 ### 8.4 PWA and offline
 - Precache all assets, `display: standalone`, `orientation: portrait`, themed icons. Updates apply with `autoUpdate`.
 - After first load the app works without network. Audio is synthesized, so there are no media files to cache.
+- Manifest has `id`, `start_url` and `scope` of `/`, and a separate maskable icon with the artwork inside the safe zone.
+- Finish offers install once the game can be installed and is not already running standalone. Where the browser fires `beforeinstallprompt` (captured at startup in `main.tsx`), a button opens the browser's install dialog. On iOS Safari, which has no install API, the same spot shows two steps: Share, then Add to Home Screen. Other browsers see nothing.
 
 ### 8.5 Performance budget
 - Initial JS at most 150 KB gzipped. Interactive in under 3 s on a mid-range phone over 4G.

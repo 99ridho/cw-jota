@@ -108,6 +108,12 @@ export const en = {
   'finish.station.title': 'Want the real thing?',
   'finish.station.callsign': 'Station',
   'finish.practice': 'Keep practicing at home',
+  'finish.install.title': 'Keep it on your phone',
+  'finish.install.body': 'Add the game to your home screen. It opens like an app and works with no signal.',
+  'finish.install.button': 'Add to home screen',
+  'finish.install.done': 'Added. Look for Morse JOTA on your home screen.',
+  'finish.install.ios1': 'Tap Share in the Safari toolbar.',
+  'finish.install.ios2': 'Choose Add to Home Screen.',
 
   'badge.first_signal.name': 'First Signal',
   'badge.first_signal.desc': 'Sent your first character',

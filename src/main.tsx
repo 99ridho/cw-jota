@@ -6,6 +6,7 @@ import '@fontsource/pt-sans/latin-700.css'
 import '@fontsource/pt-mono/latin-400.css'
 import './index.css'
 import { ANALYTICS_URL } from './config'
+import { captureInstallPrompt } from './hooks/useInstallPrompt'
 import { router } from './routes'
 import { usePersisted } from './store/session'
 
@@ -21,6 +22,8 @@ const syncTheme = (theme: 'light' | 'dark' = 'light') => {
 }
 syncTheme(usePersisted.getState().theme)
 usePersisted.subscribe((s) => syncTheme(s.theme))
+
+captureInstallPrompt()
 
 // Optional no-cookie page counter, off unless VITE_ANALYTICS_URL is set.
 if (ANALYTICS_URL) {

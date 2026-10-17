@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { QRCodeSVG } from 'qrcode.react'
 import { toast } from 'sonner'
-import { ArrowRight, Download, Lock, Play, RotateCcw, Share2, Trophy } from 'lucide-react'
+import { ArrowRight, Download, Lock, Play, RotateCcw, Share, Share2, Smartphone, SquarePlus, Trophy } from 'lucide-react'
 import { AppShell, Sticker } from '@/components/AppShell'
 import { NameCard } from '@/components/NameCard'
 import { Button } from '@/components/ui/button'
@@ -15,6 +15,7 @@ import { awardBadge } from '@/lib/celebrate'
 import { EASY_STAGES, stageStart } from '@/lib/morse/levels'
 import { bestKey } from '@/lib/storage'
 import { cn } from '@/lib/utils'
+import { useInstallPrompt } from '@/hooks/useInstallPrompt'
 import { usePlayMorse } from '@/hooks/usePlayMorse'
 import { usePersisted, useSession } from '@/store/session'
 
@@ -40,6 +41,7 @@ export default function Finish() {
   const [draft, setDraft] = useState(nickname ?? '')
   const [cardName, setCardName] = useState<string | null>(null)
   const player = usePlayMorse('', 'learn')
+  const { mode: installMode, install } = useInstallPrompt()
   const canShare = typeof navigator !== 'undefined' && 'canShare' in navigator
 
   const makeCard = () => {
@@ -178,6 +180,33 @@ export default function Finish() {
           </div>
         </div>
       </section>
+
+      {installMode && (
+        <section className="flex flex-col gap-3">
+          <h2 className="text-2xl font-bold">{t('finish.install.title')}</h2>
+          <p>{t('finish.install.body')}</p>
+          {installMode === 'prompt' ? (
+            <Button
+              variant="outline"
+              onClick={async () => {
+                if (await install()) toast.success(t('finish.install.done'))
+              }}
+            >
+              <Smartphone /> {t('finish.install.button')}
+            </Button>
+          ) : (
+            // Icons match the glyphs Safari shows, so players can spot them.
+            <ol className="flex flex-col gap-2 border-[3px] border-border bg-card p-3">
+              <li className="flex items-center gap-3">
+                <span className="label-mono">1</span> <Share className="size-5 shrink-0" aria-hidden /> {t('finish.install.ios1')}
+              </li>
+              <li className="flex items-center gap-3">
+                <span className="label-mono">2</span> <SquarePlus className="size-5 shrink-0" aria-hidden /> {t('finish.install.ios2')}
+              </li>
+            </ol>
+          )}
+        </section>
+      )}
     </AppShell>
   )
 }
