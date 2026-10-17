@@ -9,6 +9,9 @@ export const en = {
   'welcome.lang': 'Language',
   'welcome.reduceMotion': 'Steady lamp (no blinking)',
 
+  'nav.back': 'Back',
+  'nav.dark': 'Dark mode',
+
   'hook.kicker': 'Incoming transmission',
   'hook.title': 'Something is calling you…',
   'hook.replay': 'Replay',

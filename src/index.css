@@ -1,9 +1,12 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-/* Light-only brutalist theme: warm paper, ink borders, hard offset shadows,
-   candy accents. All text on fills uses --ink unless noted (AA checked). */
+/* Brutalist theme: warm paper, ink borders, hard offset shadows, candy
+   accents. Text on candy fills uses --ink in both themes; text on neutral
+   fills uses --foreground (AA checked). Light is the default; dark is opt-in
+   from the header switch. */
 :root {
+  color-scheme: light;
   --background: oklch(0.9400 0.0400 85.00);
   --foreground: oklch(0.2000 0.0140 72.00);
   --card: oklch(0.9850 0.0150 85.00);
@@ -29,6 +32,8 @@
   --lamp: oklch(0.8900 0.1700 95.00);
   --lamp-off: oklch(0.4200 0.0300 72.00);
   --ink: oklch(0.2000 0.0140 72.00);
+  /* Text and marks on the always-dark --ink panels. */
+  --on-ink: oklch(0.9400 0.0400 85.00);
 
   --chart-1: var(--primary);
   --chart-2: var(--secondary);
@@ -50,6 +55,27 @@
   --shadow-2xl: 12px 12px 0px 0px var(--shadow-color);
   --tracking-normal: 0.01em;
   --spacing: 0.25rem;
+}
+
+/* Night shift at the station: warm charcoal page, paper text and borders.
+   Candy fills and --ink keep their light-theme values. */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --background: oklch(0.2400 0.0120 72.00);
+  --foreground: oklch(0.9400 0.0300 85.00);
+  --card: oklch(0.2950 0.0150 74.00);
+  --card-foreground: oklch(0.9400 0.0300 85.00);
+  --popover: oklch(0.2950 0.0150 74.00);
+  --popover-foreground: oklch(0.9400 0.0300 85.00);
+  --muted: oklch(0.3300 0.0180 74.00);
+  --muted-foreground: oklch(0.7800 0.0300 80.00);
+  --destructive: oklch(0.7000 0.1800 27.00);
+  --destructive-foreground: oklch(0.2000 0.0140 72.00);
+  --border: oklch(0.8800 0.0300 85.00);
+  --input: oklch(0.2950 0.0150 74.00);
+  --ring: oklch(0.7200 0.1700 40.00);
+  --lamp-off: oklch(0.4200 0.0300 72.00);
+  --shadow-color: oklch(0.1200 0.0080 72.00);
 }
 
 @theme inline {
@@ -77,6 +103,7 @@
   --color-lamp: var(--lamp);
   --color-lamp-off: var(--lamp-off);
   --color-ink: var(--ink);
+  --color-on-ink: var(--on-ink);
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
   --color-chart-3: var(--chart-3);
@@ -152,7 +179,7 @@
 
 /* Paper texture: the screens read like a radio log sheet. */
 @utility paper-dots {
-  background-image: radial-gradient(color-mix(in oklch, var(--ink) 14%, transparent) 1.2px, transparent 1.2px);
+  background-image: radial-gradient(color-mix(in oklch, var(--foreground) 14%, transparent) 1.2px, transparent 1.2px);
   background-size: 18px 18px;
 }
 
@@ -172,7 +199,7 @@
     -webkit-tap-highlight-color: transparent;
   }
   :focus-visible {
-    outline: 3px solid var(--ink);
+    outline: 3px solid var(--foreground);
     outline-offset: 3px;
   }
   body {

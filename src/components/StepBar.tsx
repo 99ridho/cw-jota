@@ -10,8 +10,8 @@ export function StepBar({ steps, current }: { steps: string[]; current: number }
           aria-current={i === current ? 'step' : undefined}
           className={cn(
             'flex h-9 items-center justify-center gap-1 border-[3px] border-border font-mono text-xs font-bold uppercase',
-            i < current && 'bg-secondary',
-            i === current && 'bg-ink text-background',
+            i < current && 'bg-secondary text-ink',
+            i === current && 'bg-foreground text-background',
             i > current && 'bg-card text-muted-foreground',
           )}
         >

@@ -14,7 +14,7 @@ export const NameCard = forwardRef<HTMLDivElement, Props>(function NameCard(
   ref,
 ) {
   return (
-    <div ref={ref} className="brutal relative overflow-hidden bg-accent p-5">
+    <div ref={ref} className="brutal relative overflow-hidden bg-accent p-5 text-ink">
       <div className="label-mono mb-3 flex justify-between text-ink">
         <span>{eventLabel}</span>
         <span>· – · – ·</span>
@@ -26,9 +26,9 @@ export const NameCard = forwardRef<HTMLDivElement, Props>(function NameCard(
           return (
             <div
               key={i}
-              className={`flex items-center gap-4 border-2 border-border px-3 py-1.5 ${i === activeIndex ? 'bg-lamp' : 'bg-card'}`}
+              className={`flex items-center gap-4 border-2 border-border px-3 py-1.5 ${i === activeIndex ? 'bg-lamp text-ink' : 'bg-card text-foreground'}`}
             >
-              <span className="w-8 font-mono text-3xl font-bold text-ink">{ch}</span>
+              <span className="w-8 font-mono text-3xl font-bold">{ch}</span>
               <PatternGlyph pattern={p} size="sm" activeEl={i === activeIndex ? activeEl : -1} />
             </div>
           )

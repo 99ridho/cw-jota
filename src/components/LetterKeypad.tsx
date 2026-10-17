@@ -1,7 +1,5 @@
 import { useState } from 'react'
 import { Delete } from 'lucide-react'
-import { MORSE_TABLE } from '@/lib/morse/table'
-import { PatternGlyph } from './PatternGlyph'
 import { cn } from '@/lib/utils'
 
 interface Props {
@@ -12,7 +10,6 @@ interface Props {
   onKey: (c: string) => void
   onBackspace: () => void
   disabled?: boolean
-  showPatterns?: boolean
   backspaceLabel: string
   lettersLabel?: string
   digitsLabel?: string
@@ -26,13 +23,12 @@ export function LetterKeypad({
   onKey,
   onBackspace,
   disabled,
-  showPatterns = true,
   backspaceLabel,
   lettersLabel,
   digitsLabel,
 }: Props) {
   const [page, setPage] = useState<'letters' | 'digits'>('letters')
-  // Seven keys fit big with patterns; the full alphabet needs a denser grid.
+  // Seven keys fit big; the full alphabet needs a denser grid.
   const big = chars.length <= 8
   const keys = page === 'digits' && digits ? digits : chars
 
@@ -47,8 +43,8 @@ export function LetterKeypad({
               aria-pressed={page === p}
               onClick={() => setPage(p)}
               className={cn(
-                'brutal press h-11 font-mono text-base font-bold text-ink',
-                page === p ? 'bg-ink text-background' : 'bg-card',
+                'brutal press h-11 font-mono text-base font-bold',
+                page === p ? 'bg-foreground text-background' : 'bg-card',
               )}
             >
               {p === 'letters' ? lettersLabel : digitsLabel}
@@ -65,13 +61,12 @@ export function LetterKeypad({
             disabled={disabled}
             onClick={() => onKey(c)}
             className={cn(
-              'brutal press flex flex-col items-center justify-center gap-1 font-mono font-bold text-ink disabled:opacity-50',
+              'brutal press flex items-center justify-center font-mono font-bold text-ink disabled:opacity-50',
               big ? 'h-16 text-2xl' : 'h-12 text-xl',
               COLORS[(big ? i : i + Math.floor(i / 6)) % COLORS.length],
             )}
           >
             {c}
-            {showPatterns && <PatternGlyph pattern={MORSE_TABLE[c]!} size="sm" className="scale-75" />}
           </button>
         ))}
         <button
@@ -80,7 +75,7 @@ export function LetterKeypad({
           onClick={onBackspace}
           aria-label={backspaceLabel}
           className={cn(
-            'brutal press flex items-center justify-center bg-card text-ink disabled:opacity-50',
+            'brutal press flex items-center justify-center bg-card disabled:opacity-50',
             big ? 'h-16' : 'h-12',
           )}
         >

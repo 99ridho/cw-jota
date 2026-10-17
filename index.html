@@ -8,6 +8,15 @@
     <meta name="theme-color" content="#f8eace" />
     <meta name="description" content="Hear Morse code, pick a level, and decode mystery words. JOTA station mini-game." />
     <title>Morse Mini-Game</title>
+    <script>
+      // Apply the saved theme before first paint so dark players see no light flash.
+      try {
+        if (JSON.parse(localStorage.getItem('jota-morse')).theme === 'dark') {
+          document.documentElement.dataset.theme = 'dark'
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#28241f')
+        }
+      } catch {}
+    </script>
   </head>
   <body>
     <div id="root"></div>

@@ -29,7 +29,7 @@ export default function RouteError() {
   }, [stale])
 
   return (
-    <AppShell>
+    <AppShell back={false}>
       <div className="brutal mt-8 flex flex-col gap-3 bg-card p-5" role="alert">
         <h1 className="text-3xl font-bold">{t('error.title')}</h1>
         <p className="text-lg">{stale ? t('error.update') : t('error.body')}</p>

@@ -13,6 +13,15 @@ const syncLang = (lang: string) => document.documentElement.setAttribute('lang',
 syncLang(usePersisted.getState().lang)
 usePersisted.subscribe((s) => syncLang(s.lang))
 
+// index.html sets data-theme before first paint; this keeps it in sync after.
+const THEME_COLOR = { light: '#f8eace', dark: '#28241f' }
+const syncTheme = (theme: 'light' | 'dark' = 'light') => {
+  document.documentElement.dataset.theme = theme
+  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', THEME_COLOR[theme])
+}
+syncTheme(usePersisted.getState().theme)
+usePersisted.subscribe((s) => syncTheme(s.theme))
+
 // Optional no-cookie page counter, off unless VITE_ANALYTICS_URL is set.
 if (ANALYTICS_URL) {
   const s = document.createElement('script')

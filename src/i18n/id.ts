@@ -11,6 +11,9 @@ export const id: Dict = {
   'welcome.lang': 'Bahasa',
   'welcome.reduceMotion': 'Lampu diam (tanpa kedip)',
 
+  'nav.back': 'Kembali',
+  'nav.dark': 'Mode gelap',
+
   'hook.kicker': 'Transmisi masuk',
   'hook.title': 'Ada yang memanggilmu…',
   'hook.replay': 'Putar lagi',

@@ -38,6 +38,7 @@ export default function Welcome() {
 
   return (
     <AppShell
+      back={false}
       kicker={<Sticker className="rotate-2 bg-info">{EVENT_LABEL}</Sticker>}
       right={
         <ToggleGroup
@@ -60,16 +61,16 @@ export default function Welcome() {
         <p className="text-lg text-pretty">{t('welcome.sub')}</p>
       </section>
 
-      <section className="brutal flex items-center gap-5 bg-card p-4">
+      <section className="brutal flex items-center gap-4 bg-card p-4 min-[400px]:gap-5">
         <SignalLamp on={tone.lampOn} active={tone.isPlaying} />
-        <div className="flex flex-col gap-3">
+        <div className="flex min-w-0 flex-col gap-3">
           <PatternGlyph pattern="-.-.-" size="sm" />
           {/* One tile per level, previewing what the level picker offers. */}
           <div className="flex flex-wrap gap-1.5">
             {['ETANSOM', 'A–Z', '0–9'].map((c, i) => (
               <span
                 key={c}
-                className="flex h-8 items-center justify-center border-2 border-border bg-accent px-2 font-mono text-lg font-bold"
+                className="flex h-8 items-center justify-center border-2 border-border bg-accent px-2 font-mono text-lg font-bold text-ink"
                 style={{ rotate: `${(i % 2 ? 1 : -1) * (2 + i)}deg` }}
               >
                 {c}

@@ -89,7 +89,7 @@ export default function Finish() {
                   earned && (i % 2 ? 'rotate-1' : '-rotate-1'),
                 )}
               >
-                {fresh && <span className="label-mono absolute -top-3 right-2 border-2 border-border bg-card px-1 text-[10px] text-ink">new</span>}
+                {fresh && <span className="label-mono absolute -top-3 right-2 border-2 border-border bg-card px-1 text-[10px]">new</span>}
                 <span className="flex items-center gap-2 font-bold">
                   {earned ? <Icon className="size-5" aria-hidden /> : <Lock className="size-5" aria-hidden />}
                   {t(`badge.${id}.name`)}
@@ -168,7 +168,8 @@ export default function Finish() {
           {t('finish.station.callsign')}: <span className="text-base">{STATION_CALLSIGN}</span>
         </p>
         <div className="flex items-center gap-4 border-[3px] border-border bg-card p-3">
-          <QRCodeSVG value={PRACTICE_URL} size={112} bgColor="transparent" fgColor="#1a150f" level="M" />
+          {/* Paper behind the code in both themes: scanners need dark on light. */}
+          <QRCodeSVG value={PRACTICE_URL} size={112} bgColor="#f8eace" fgColor="#1a150f" marginSize={2} level="M" className="shrink-0" />
           <div className="flex flex-col gap-1">
             <span className="font-bold">{t('finish.practice')}</span>
             <a href={PRACTICE_URL} target="_blank" rel="noreferrer" className="font-mono text-sm break-all underline underline-offset-4">

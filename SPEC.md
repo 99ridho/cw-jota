@@ -99,6 +99,8 @@ export interface Persisted {
   nickname?: string;
   bests: Record<'easy1' | 'easy2' | 'easy3' | 'easy4' | 'medium' | 'hard', number>; // per Easy stage, Medium, Hard (ADR-010)
   badges: BadgeId[];
+  reduceMotion?: boolean;
+  theme?: 'light' | 'dark';         // missing means light (ADR-011)
 }
 
 // In-memory only, reset on reload
@@ -113,7 +115,7 @@ export interface Session {
 }
 ```
 
-Persisted data is only language, optional nickname, best score per level, and badges. Nothing is transmitted.
+Persisted data is only language, optional nickname, best score per level, badges, the steady-lamp setting, and the theme. Nothing is transmitted.
 
 ---
 
@@ -178,6 +180,10 @@ after a clear dah   u = 0.7*u + 0.3*(d/3)
 
 ## 7. Screens
 
+### 7.0 Header (every screen)
+- Back button on the left (not on Welcome): goes to the previous screen in history, or to `/` when the tab opened mid-flow (ADR-012). Learn's Meet, Hear and Send are steps inside one screen, so Back leaves the pack.
+- Light/dark switch on the right, after any screen-specific chip. First start is always light, whatever the OS setting; the choice is saved. A script in `index.html` applies a saved dark theme before first paint (ADR-011).
+
 ### 7.1 Welcome (`/`)
 - Language `ToggleGroup` (ID / EN), default from `navigator.language` (starts with `id` means Indonesian).
 - Sound notice, **Test tone** button, and the primary **Tap to start** button.
@@ -203,7 +209,7 @@ after a clear dah   u = 0.7*u + 0.3*(d/3)
 
 ### 7.4 Challenge (`/challenge`)
 - 5 mystery words for the picked level. Each is played, and the player enters it on `LetterKeypad` or a physical keyboard. Replay is unlimited at a small score cost.
-- **Easy stage 1:** words from `WORDS` in `words.ts`, a curated list validated by a unit test so every word uses only the 7 characters. Examples: `SOS, SEA, NOTE, STONE, MEAT, TEAM, NAME, MOON, ONSET, MEAN`. One word is always `SOS` (earns `sos_master`). Keypad: 7 keys with patterns, in teaching order.
+- **Easy stage 1:** words from `WORDS` in `words.ts`, a curated list validated by a unit test so every word uses only the 7 characters. Examples: `SOS, SEA, NOTE, STONE, MEAT, TEAM, NAME, MOON, ONSET, MEAN`. One word is always `SOS` (earns `sos_master`). Keypad: 7 keys, no patterns, in teaching order (ADR-014).
 - **Easy stages 2 to 4:** 5 from `STAGE_WORDS[stage]`, short first. A unit test checks every word uses only letters taught through that stage and at least one letter the stage introduces. Keypad: the stage's letters A to Z, no patterns (they do not fit at 14 keys and up).
 - **Medium:** 5 from `MEDIUM_WORDS` in `levels.ts` (short scout and radio words, A to Z). Keypad: 26 letters, no patterns.
 - **Hard:** 2 ham codes from `HARD_CODES` (`73`, `599`, `5NN`, `CQ`, ...) then 3 generated callsigns: an Indonesian (`YB`..`YH`) or world prefix, one digit, 1 to 3 letters, at most 6 characters. Keypad: letters with an `ABC | 123` page toggle.

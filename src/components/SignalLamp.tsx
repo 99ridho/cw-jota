@@ -8,7 +8,8 @@ interface Props {
   className?: string
 }
 
-const SIZES = { sm: 'size-16', md: 'size-28', lg: 'size-40' }
+// md shrinks below 400px so the Welcome card fits its pattern beside the lamp on a 320px phone.
+const SIZES = { sm: 'size-16', md: 'size-24 min-[400px]:size-28', lg: 'size-40' }
 
 /** Capped at 200 CSS px for flash safety; reduced motion swaps blinking for a steady "on air" state. */
 export function SignalLamp({ on, active = on, size = 'md', className }: Props) {

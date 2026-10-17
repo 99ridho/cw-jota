@@ -36,15 +36,15 @@ export default function Hook() {
     <AppShell kicker={t('hook.kicker')}>
       <h1 className="text-4xl leading-tight font-bold text-balance">{t('hook.title')}</h1>
 
-      <div className="brutal flex flex-col items-center gap-6 bg-ink px-4 py-8 text-background">
+      <div className="brutal flex flex-col items-center gap-6 bg-ink px-4 py-8 text-on-ink">
         <SignalLamp on={player.lampOn} active={player.isPlaying} size="lg" />
         <div className="flex flex-wrap justify-center gap-x-5 gap-y-3">
           {[...msg].map((ch, i) => (
             <div key={i} className="flex flex-col items-center gap-2">
               <div
                 className={cn(
-                  'border-[3px] border-background p-2 transition-colors',
-                  player.activeIndex === i && 'bg-background/15',
+                  'border-[3px] border-on-ink p-2 transition-colors',
+                  player.activeIndex === i && 'bg-on-ink/15',
                 )}
               >
                 <PatternGlyph
@@ -56,8 +56,8 @@ export default function Hook() {
               </div>
               <span
                 className={cn(
-                  'flex size-12 items-center justify-center border-[3px] border-background font-mono text-3xl font-bold',
-                  revealed ? 'animate-pop bg-accent text-ink' : 'text-background/40',
+                  'flex size-12 items-center justify-center border-[3px] border-on-ink font-mono text-3xl font-bold',
+                  revealed ? 'animate-pop bg-accent text-ink' : 'text-on-ink/40',
                 )}
                 style={revealed ? { animationDelay: `${i * 120}ms`, animationFillMode: 'both' } : undefined}
               >

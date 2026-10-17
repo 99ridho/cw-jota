@@ -149,9 +149,9 @@ export default function Challenge() {
               <span
                 key={i}
                 className={cn(
-                  'flex h-16 w-12 min-w-0 shrink flex-col items-center justify-center border-[3px] border-background font-mono text-3xl font-bold',
-                  !result && (typed ? 'animate-pop bg-accent text-ink' : 'text-background/50'),
-                  result && (right ? 'bg-secondary text-ink' : 'bg-card text-ink'),
+                  'flex h-16 w-12 min-w-0 shrink flex-col items-center justify-center border-[3px] border-on-ink font-mono text-3xl font-bold',
+                  !result && (typed ? 'animate-pop bg-accent text-ink' : 'text-on-ink/50'),
+                  result && (right ? 'bg-secondary text-ink' : 'bg-card text-foreground'),
                 )}
               >
                 {result ? ch : typed ?? '_'}
@@ -161,9 +161,9 @@ export default function Challenge() {
           })}
         </div>
         {!result && (
-          <div className="flex w-full items-center gap-2 text-background">
+          <div className="flex w-full items-center gap-2 text-on-ink">
             <Timer className="size-4 shrink-0" aria-hidden />
-            <div className="h-2 flex-1 border border-background">
+            <div className="h-2 flex-1 border border-on-ink">
               <div
                 className="h-full bg-lamp transition-[width] duration-100"
                 style={{ width: `${Math.max(0, 1 - elapsed / SPEED_BONUS_WINDOW_S) * 100}%` }}
@@ -190,7 +190,6 @@ export default function Challenge() {
             <LetterKeypad
               chars={keys}
               digits={level === 'hard' ? DIGITS : undefined}
-              showPatterns={level === 'easy' && stage === 1}
               onKey={type}
               onBackspace={() => setAnswer((a) => a.slice(0, -1))}
               backspaceLabel={t('challenge.clear')}

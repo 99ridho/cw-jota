@@ -24,6 +24,7 @@ interface PersistedStore extends Persisted {
   setLang: (lang: Persisted['lang']) => void
   setNickname: (nickname: string) => void
   setReduceMotion: (on: boolean) => void
+  setTheme: (theme: 'light' | 'dark') => void
   /** Returns true when the badge is new. */
   awardBadge: (id: BadgeId) => boolean
   /** Returns true when the score beats the best for that level or stage. */
@@ -39,9 +40,11 @@ export const usePersisted = create<PersistedStore>()((set, get) => ({
   bests: { ...NO_BESTS, ...saved?.bests },
   badges: saved?.badges ?? [],
   reduceMotion: saved?.reduceMotion ?? prefersReducedMotion(),
+  theme: saved?.theme ?? 'light',
   setLang: (lang) => set({ lang }),
   setNickname: (nickname) => set({ nickname }),
   setReduceMotion: (reduceMotion) => set({ reduceMotion }),
+  setTheme: (theme) => set({ theme }),
   awardBadge: (id) => {
     if (get().badges.includes(id)) return false
     set({ badges: [...get().badges, id] })
@@ -62,6 +65,7 @@ usePersisted.subscribe((s) =>
     bests: s.bests,
     badges: s.badges,
     reduceMotion: s.reduceMotion,
+    theme: s.theme,
   }),
 )
 

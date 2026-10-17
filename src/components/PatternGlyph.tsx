@@ -9,7 +9,7 @@ interface Props {
   size?: 'sm' | 'md' | 'lg'
   className?: string
   hidden?: boolean
-  /** Light marks for dark backgrounds. */
+  /** Light marks for the dark `bg-ink` panels. */
   inverse?: boolean
   /** Per element: already sent and accepted (send drill guide). Overrides `matched`. */
   accepted?: boolean[]
@@ -18,9 +18,10 @@ interface Props {
   fillMs?: number
 }
 
-const DIT = { sm: 'h-3 w-3', md: 'h-5 w-5', lg: 'h-7 w-7' }
-const DAH = { sm: 'h-3 w-9', md: 'h-5 w-14', lg: 'h-7 w-20' }
-const GAP = { sm: 'gap-1.5', md: 'gap-2.5', lg: 'gap-3' }
+// lg shrinks below 400px so a four-mark letter (Q, J, Y) fits a 320px phone.
+const DIT = { sm: 'h-3 w-3', md: 'h-5 w-5', lg: 'h-6 w-6 min-[400px]:h-7 min-[400px]:w-7' }
+const DAH = { sm: 'h-3 w-9', md: 'h-5 w-14', lg: 'h-6 w-14 min-[400px]:h-7 min-[400px]:w-20' }
+const GAP = { sm: 'gap-1.5', md: 'gap-2.5', lg: 'gap-2.5 min-[400px]:gap-3' }
 
 export function PatternGlyph({
   pattern,
@@ -44,10 +45,10 @@ export function PatternGlyph({
             key={i}
             className={cn(
               'relative overflow-hidden border-[3px] transition-colors',
-              inverse ? 'border-background' : 'border-border',
+              inverse ? 'border-on-ink' : 'border-border',
               el === '.' ? DIT[size] : DAH[size],
               el === '.' && 'rounded-full',
-              hidden ? 'border-dashed bg-transparent' : i === activeEl ? 'bg-lamp' : done ? 'bg-secondary' : inverse ? 'bg-background' : 'bg-ink',
+              hidden ? 'border-dashed bg-transparent' : i === activeEl ? 'bg-lamp' : done ? 'bg-secondary' : inverse ? 'bg-on-ink' : 'bg-current',
             )}
           >
             {i === filling && (

@@ -43,7 +43,7 @@ function LearnPack({ stage, pack }: { stage: number; pack: number }) {
       kicker={t('learn.group', { s: stage, n: pack, total: STAGES[stage - 1]!.length })}
       right={
         streak > 1 && (
-          <span key={streak} className="brutal flex animate-pop items-center gap-1 bg-pink px-2 py-1 font-mono text-sm font-bold">
+          <span key={streak} className="brutal flex animate-pop items-center gap-1 bg-pink px-2 py-1 font-mono text-sm font-bold text-ink">
             <Flame className="size-4" /> {streak}
           </span>
         )
@@ -86,12 +86,12 @@ function Meet({ chars, onDone }: { chars: MorseChar[]; onDone: () => void }) {
               type="button"
               onClick={() => hear(c)}
               className={cn(
-                'brutal press relative flex items-center gap-4 p-4 text-left',
+                'brutal press relative flex items-center gap-4 p-4 text-left text-ink',
                 CARD_COLORS[i % CARD_COLORS.length],
                 i % 2 ? 'rotate-[0.6deg]' : '-rotate-[0.6deg]',
               )}
             >
-              <span className="flex size-20 shrink-0 items-center justify-center border-[3px] border-border bg-card font-mono text-5xl font-bold">
+              <span className="flex size-20 shrink-0 items-center justify-center border-[3px] border-border bg-card font-mono text-5xl font-bold text-foreground">
                 {c}
               </span>
               <span className="flex flex-col gap-2">
@@ -179,7 +179,7 @@ function Decode({
     const passed = firstTry >= PASS_MARK || attempt >= 2
     return (
       <div className="flex flex-1 flex-col gap-5">
-        <div className={cn('brutal flex animate-pop flex-col items-center gap-3 p-6 text-center', passed ? 'bg-secondary' : 'bg-accent')}>
+        <div className={cn('brutal flex animate-pop flex-col items-center gap-3 p-6 text-center text-ink', passed ? 'bg-secondary' : 'bg-accent')}>
           <Ear className="size-12" aria-hidden />
           <p className="font-mono text-5xl font-bold">
             {firstTry}/{DRILL_LENGTH}
@@ -244,8 +244,8 @@ function Decode({
               disabled={solved || missed}
               className={cn(
                 'brutal press flex min-h-28 flex-col items-center justify-center gap-2 font-mono text-5xl font-bold disabled:cursor-default',
-                !solved && !missed && 'bg-card hover:bg-accent',
-                isTarget && 'bg-secondary',
+                !solved && !missed && 'bg-card hover:bg-accent hover:text-ink',
+                isTarget && 'bg-secondary text-ink',
                 missed && 'animate-shake bg-card line-through decoration-destructive decoration-4 opacity-60',
                 solved && !isTarget && !missed && 'bg-card opacity-50',
               )}
@@ -319,14 +319,15 @@ function Send({
         <span className="label-mono">{t('learn.send.progress', { n: idx, total: targets.length })}</span>
         <Progress value={(idx / targets.length) * 100} />
       </div>
-      <div className="brutal flex items-center gap-4 bg-card p-4">
+      {/* Wraps on narrow phones so a long pattern pushes the sound button to its own row. */}
+      <div className="brutal flex flex-wrap items-center gap-x-4 gap-y-3 bg-card p-4">
         <div className="flex flex-col items-center">
           <span className="label-mono">{t('learn.send.target')}</span>
           <span key={idx} className="animate-pop font-mono text-7xl font-bold">
             {target}
           </span>
         </div>
-        <div className="flex flex-1 flex-col items-start gap-3">
+        <div className="flex flex-auto flex-col items-start gap-3">
           <PatternGlyph
             pattern={p}
             accepted={result?.ok ? [...p].map(() => true) : matched}
@@ -337,7 +338,7 @@ function Send({
           />
           <span className="font-mono text-lg font-bold">{rhythm(p)}</span>
         </div>
-        <Button size="icon" variant="outline" aria-label={t('learn.decode.replay')} onClick={() => void player.play(target)} disabled={player.isPlaying}>
+        <Button size="icon" variant="outline" className="ml-auto" aria-label={t('learn.decode.replay')} onClick={() => void player.play(target)} disabled={player.isPlaying}>
           <Volume2 />
         </Button>
       </div>
@@ -375,7 +376,7 @@ function Done({ stage, pack, chars }: { stage: number; pack: number; chars: Mors
 
   return (
     <div className="flex flex-1 flex-col gap-6">
-      <div className="brutal relative flex animate-pop flex-col items-center gap-4 bg-secondary px-4 py-8 text-center">
+      <div className="brutal relative flex animate-pop flex-col items-center gap-4 bg-secondary px-4 py-8 text-center text-ink">
         <Sticker className="absolute -top-4 -right-2 rotate-6 bg-pink">+{chars.length}</Sticker>
         <p className="text-4xl font-bold">{t('learn.send.done')}</p>
         <div className="flex flex-wrap justify-center gap-2">
@@ -384,7 +385,7 @@ function Done({ stage, pack, chars }: { stage: number; pack: number; chars: Mors
               key={c}
               className={cn(
                 'flex size-12 items-center justify-center border-[3px] border-border font-mono text-2xl font-bold',
-                chars.includes(c) ? 'bg-accent' : 'bg-card',
+                chars.includes(c) ? 'bg-accent' : 'bg-card text-foreground',
               )}
               style={{ rotate: `${(i % 2 ? 1 : -1) * 3}deg` }}
             >

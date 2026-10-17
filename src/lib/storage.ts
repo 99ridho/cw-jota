@@ -21,6 +21,8 @@ export interface Persisted {
   bests: Bests
   badges: BadgeId[]
   reduceMotion?: boolean
+  /** Missing means light: first start is always light, whatever the OS says. */
+  theme?: 'light' | 'dark'
 }
 
 function getStorage(): Storage | null {

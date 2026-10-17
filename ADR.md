@@ -82,3 +82,31 @@ Date: 2026-10-16 · Status: Accepted · Supersedes the Easy part of ADR-008
 Context: A stage 1 score and a stage 4 score are not comparable, the same reason ADR-008 split bests by level.
 Decision: localStorage keeps `bests: { easy1, easy2, easy3, easy4, medium, hard }` under `v: 3`. A `v: 1` best and a `v: 2` Easy best both migrate to `easy1`. The level picker shows Easy's top stage score with its stage number.
 Consequences: Existing Easy records keep their meaning, since they all came from what is now stage 1.
+
+## ADR-011: Light/dark switch, light by default
+Date: 2026-10-17 · Status: Accepted
+
+Context: Stations run into the evening, and a bright paper screen is harsh in a dark tent. The app was light-only.
+Decision: A sun/moon switch sits in the header on every screen. First start is always light, regardless of `prefers-color-scheme`. The choice is stored as optional `theme` in the v3 record. Dark mode swaps the neutral tokens (page, card, text, borders, muted); candy fills and `--ink` keep their values, so text on candy is always `text-ink` and text on neutral fills is `text-foreground`. The always-dark panels (Hook, Challenge) use a new `--on-ink` token for their text and marks.
+Consequences: New UI must pair candy fills with `text-ink`; `text-ink` on `bg-card` is now a bug in dark mode. The exported name card image stays light.
+
+## ADR-012: Back button in the header
+Date: 2026-10-17 · Status: Accepted
+
+Context: Players had no way back to the previous screen except the browser's own gesture, which is hidden in standalone mode.
+Decision: A soft (ghost) back arrow sits left of the header kicker on every screen except Welcome and the error screen. It goes back one history entry, or to `/` when the tab has no in-app history.
+Consequences: Back from mid-Challenge abandons the round with no confirm. Back from Finish lands on Challenge, which starts a fresh round.
+
+## ADR-013: Send row wraps on narrow phones
+Date: 2026-10-17 · Status: Accepted
+
+Context: On a 360px phone a four-mark letter (Q, J, Y) at the large glyph size overflowed the Send card and clipped the sound button.
+Decision: The Send card wraps: the pattern drops below the letter and the sound button to its own row, right-aligned. The large glyph and the medium signal lamp shrink below 400px so the pattern and the Welcome card fit a 320px screen.
+Consequences: On small phones the Send card is taller, by one or two rows.
+
+## ADR-014: Challenge keypad without patterns, like Decode
+Date: 2026-10-17 · Status: Accepted · Supersedes the keypad part of ADR-009
+
+Context: Easy stage 1's Challenge keypad printed each letter's pattern on its key, while Learn's Decode keypad shows letters only. The patterns let players read instead of listen.
+Decision: The Challenge keypad shows letters only at every level. `LetterKeypad` no longer has a `showPatterns` option.
+Consequences: Stage 1 Challenge is a little harder, and matches the skill Decode trains.

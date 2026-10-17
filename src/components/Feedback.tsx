@@ -10,7 +10,7 @@ export function Feedback({ kind, children }: { kind: 'good' | 'bad' | null; chil
         <div
           className={cn(
             'brutal flex animate-pop items-center gap-2 px-3 py-3 text-lg font-bold',
-            kind === 'good' ? 'bg-secondary text-ink' : 'animate-shake bg-card text-ink',
+            kind === 'good' ? 'bg-secondary text-ink' : 'animate-shake bg-card text-foreground',
           )}
         >
           {kind === 'good' ? <CircleCheck className="size-6 shrink-0" /> : <CircleX className="size-6 shrink-0 text-destructive" />}

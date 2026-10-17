@@ -36,8 +36,8 @@ export default function Recap() {
             type="button"
             onClick={() => hear(c)}
             className={cn(
-              'brutal press flex min-h-16 flex-col items-center justify-center gap-1 px-1 py-2 font-mono text-2xl font-bold text-ink',
-              playing === c ? 'bg-accent' : 'bg-card',
+              'brutal press flex min-h-16 flex-col items-center justify-center gap-1 px-1 py-2 font-mono text-2xl font-bold',
+              playing === c ? 'bg-accent text-ink' : 'bg-card',
             )}
           >
             {c}
