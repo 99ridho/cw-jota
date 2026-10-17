@@ -182,7 +182,7 @@ after a clear dah   u = 0.7*u + 0.3*(d/3)
 ## 7. Screens
 
 ### 7.0 Header (every screen)
-- Back button on the left (not on Welcome): goes one level up the flow, not back in history (ADR-020): each route names its parent in `routes.tsx` as `handle.parent`. Learn pack and warm-up go to their pack picker, pack picker to the stage picker, stage picker to the level picker, level picker and Hook to Welcome. Challenge and Finish go to the stage's pack picker on Easy and to the level picker on Medium and Hard. Learn's Meet, Hear and Send are steps inside one screen, so Back leaves the pack.
+- Back button on the left (not on Welcome): goes one level up the flow, not back in history (ADR-020): each route names its parent in `routes.tsx` as `handle.parent`. Back pops history when the parent is the entry right behind, else replaces the current entry with it, so Back never grows history. Learn pack and warm-up go to their pack picker, pack picker to the stage picker, stage picker to the level picker, level picker and Hook to Welcome. Challenge and Finish go to the stage's pack picker on Easy and to the level picker on Medium and Hard. Learn's Meet, Hear and Send are steps inside one screen, so Back leaves the pack.
 - Light/dark switch on the right, after any screen-specific chip. First start is always light, whatever the OS setting; the choice is saved. A script in `index.html` applies a saved dark theme before first paint (ADR-011).
 
 ### 7.1 Welcome (`/`)

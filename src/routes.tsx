@@ -3,6 +3,7 @@ import { Toaster } from '@/components/ui/sonner'
 import { isUnlocked } from '@/lib/audio/unlock'
 import { STAGES } from '@/lib/morse/table'
 import { useSession } from '@/store/session'
+import { useTrackHistory } from '@/hooks/useBack'
 import Welcome from '@/pages/Welcome'
 import RouteError from '@/pages/RouteError'
 
@@ -25,6 +26,7 @@ const levelParent = parent(() => {
 })
 
 function Root() {
+  useTrackHistory()
   return (
     <>
       <Outlet />
