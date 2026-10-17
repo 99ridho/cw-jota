@@ -93,11 +93,11 @@ export default function Hook() {
             {t('hook.next')} <ArrowRight className="size-6" />
           </Button>
         )}
-        <div className={cn('grid gap-3', !revealed && 'grid-cols-2')}>
+        <div className={cn('grid gap-3', !played && 'grid-cols-2')}>
           <Button variant="outline" onClick={() => void player.play()} disabled={player.isPlaying}>
             <RotateCcw /> {t('hook.replay')}
           </Button>
-          {!revealed && (
+          {!played && (
             <Button variant="outline" onClick={skip}>
               <SkipForward /> {t('hook.skip')}
             </Button>

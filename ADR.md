@@ -157,5 +157,5 @@ Consequences: Back always lands on the same screen, however the player got there
 Date: 2026-10-17 · Status: Accepted
 
 Context: Repeat visitors had to sit through the mystery message and tap reveal before they could reach the level picker.
-Decision: Before the reveal, a Skip button sits beside Replay on Hook. It stops the message and opens `/level`. After the reveal it goes away, since "Pick my level" does the same thing.
-Consequences: Returning players reach the level picker in one tap. First-timers can skip the hook too, but Reveal stays the primary button.
+Decision: While the message first plays, a Skip button sits beside Replay on Hook. It stops the message and opens `/level`. When that first play ends (or the player taps reveal), Skip goes away and Replay takes the full width, since the player can then reveal and tap "Pick my level".
+Consequences: Returning players reach the level picker in one tap without waiting for the message. Once the first play ends, there is no Skip, so a player who stays has to reveal before moving on.
