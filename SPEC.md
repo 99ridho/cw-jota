@@ -53,13 +53,14 @@ Custom components: `TapPad`, `SignalLamp`, `PatternGlyph`, `LetterKeypad`, `Name
 /hook        Mystery message plays, then reveal
 /level       Pick Easy, Medium or Hard (ADR-007)
 /stage       Easy only: pick stage 1 to 4 (ADR-009)
+/stage/:s    Easy only: pick the warm-up, a pack, or the challenge of stage s (ADR-018)
 /learn/:s/recap   Warm-up with every letter from earlier stages (stage 2 to 4)
 /learn/:s/:p      Stage s, pack p (see STAGES below)
 /challenge   Mystery Word challenge (5 words)
 /finish      Score, badges, name card, station and practice links
 ```
 
-Easy opens the stage picker. A stage runs its packs (`/learn/:s/1..n`), then the challenge. Stages 2 to 4 start with the warm-up unless every earlier stage was learned this visit; a stage whose packs are already done this visit goes straight to the challenge (`stageStart` in `levels.ts`). Medium and Hard go straight to `/challenge`. Each pack page has three internal steps: **Meet** → **Decode drill** → **Send drill**. Splitting practice across packs keeps every minute interactive and gives a first "I sent it" win within the first few minutes.
+Easy opens the stage picker, and a stage opens its pack picker (`/stage/:s`). From there the player can open any pack, the warm-up, or the challenge. A pack's Done screen leads to the next pack, and the last pack leads to the challenge. The pack picker marks one card "Up next" (`stageStart` in `levels.ts`): the warm-up on stages 2 to 4 unless every earlier stage was learned this visit, else the first pack not done this visit, else the challenge. Medium and Hard go straight to `/challenge`. Each pack page has three internal steps: **Meet** → **Decode drill** → **Send drill**. With `VITE_SEND_DRILL=false` the Send drill is skipped and a pack ends after Decode (ADR-019). Splitting practice across packs keeps every minute interactive and gives a first "I sent it" win within the first few minutes.
 
 Time budget for a first-timer on stage 1: Hook 1 min, three packs about 3 min each, Challenge 3 min, Finish 1 min. Later stages are for repeat visits or visitors who want more.
 
@@ -201,10 +202,14 @@ after a clear dah   u = 0.7*u + 0.3*(d/3)
 - Four stacked cards, all open: stage number, the letters it introduces, how many letters its words use, and that stage's best.
 - **Warm-up** (`/learn/:s/recap`): a grid of every letter from earlier stages, each tile showing its pattern and playing on tap. Continue is always enabled; nothing is drilled.
 
+### 7.2d Pack picker (`/stage/:s`)
+- Stacked cards, all open: **Warm-up** (stages 2 to 4), one card per pack with its letters and a check when done this visit, then **Mystery words** with that stage's best.
+- An "Up next" sticker marks the card `stageStart` picks. Finish's "Next stage" opens the next stage's pack picker.
+
 ### 7.3 Learn pack (`/learn/:s/:p`)
 1. **Meet:** a card per character with the glyph, the pattern, and tap-to-hear. The pattern is explained by rhythm ("di-dah"), not by chart.
 2. **Decode drill:** 6 questions per pack. Options: 2 (pack 1), 3 (pack 2), 4 (pack 3). Distractors come from this pack first, then from every letter learned before it, earlier stages included. A wrong pick strikes that option out and replays the sound, and the player keeps picking on the same question. Only a first-try answer scores; a correct pick after a miss moves on with no mark. After a correct pick the next question comes about 1.8 s later (ADR-003).
-3. **Send drill:** the target character is shown with its pattern (guided). The player taps it out. Two correct sends per character complete the step.
+3. **Send drill** (only when `VITE_SEND_DRILL` is on, the default): the target character is shown with its pattern (guided). The player taps it out. Two correct sends per character complete the step.
 - **Unlock rule:** 5 of 6 correct in the drill, or 2 drill attempts. After two attempts the pattern is shown as a hint, so nobody gets stuck at an event. There are no dead ends.
 
 ### 7.4 Challenge (`/challenge`)

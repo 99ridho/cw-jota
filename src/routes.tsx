@@ -34,6 +34,15 @@ export const router = createBrowserRouter([
       { path: '/level', lazy: page(() => import('@/pages/Level')), loader: requireAudio },
       { path: '/stage', lazy: page(() => import('@/pages/Stage')), loader: requireAudio },
       {
+        path: '/stage/:stage',
+        lazy: page(() => import('@/pages/Packs')),
+        loader: ({ params }) => {
+          const s = Number(params.stage)
+          if (!Number.isInteger(s) || s < 1 || s > STAGES.length) return redirect('/stage')
+          return requireAudio()
+        },
+      },
+      {
         path: '/learn/:stage/recap',
         lazy: page(() => import('@/pages/Recap')),
         loader: ({ params }) => {

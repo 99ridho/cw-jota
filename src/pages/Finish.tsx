@@ -12,7 +12,7 @@ import { useT } from '@/i18n'
 import { BADGES } from '@/lib/badges'
 import { renderNameCard, shareOrDownload } from '@/lib/cardImage'
 import { awardBadge } from '@/lib/celebrate'
-import { EASY_STAGES, stageStart } from '@/lib/morse/levels'
+import { EASY_STAGES } from '@/lib/morse/levels'
 import { bestKey } from '@/lib/storage'
 import { cn } from '@/lib/utils'
 import { useInstallPrompt } from '@/hooks/useInstallPrompt'
@@ -24,7 +24,7 @@ const cleanName = (s: string) => s.toUpperCase().replace(/[^A-Z0-9 ]/g, '').slic
 export default function Finish() {
   const t = useT()
   const navigate = useNavigate()
-  const { score, newBadges, resetRun, stage, setStage, packsDone } = useSession()
+  const { score, newBadges, resetRun, stage, setStage } = useSession()
   const level = useSession((s) => s.level) ?? 'easy'
   const key = bestKey(level, stage)
   const { bests, badges, lang, nickname, setNickname, submitScore } = usePersisted()
@@ -109,7 +109,7 @@ export default function Finish() {
           onClick={() => {
             resetRun()
             setStage(stage + 1)
-            navigate(stageStart(stage + 1, packsDone))
+            navigate(`/stage/${stage + 1}`)
           }}
         >
           {t('finish.nextStage', { n: stage + 1 })} <ArrowRight />

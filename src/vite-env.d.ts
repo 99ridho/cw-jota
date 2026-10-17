@@ -10,5 +10,6 @@ interface ImportMetaEnv {
   readonly VITE_EVENT_LABEL?: string
   readonly VITE_SPEED_LEARN?: string
   readonly VITE_SPEED_CHALLENGE?: string
+  readonly VITE_SEND_DRILL?: string
   readonly VITE_ANALYTICS_URL?: string
 }

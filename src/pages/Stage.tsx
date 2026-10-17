@@ -2,7 +2,6 @@ import { useNavigate } from 'react-router'
 import { Trophy } from 'lucide-react'
 import { AppShell } from '@/components/AppShell'
 import { useT } from '@/i18n'
-import { stageStart } from '@/lib/morse/levels'
 import { stageChars, stageNew, STAGES } from '@/lib/morse/table'
 import { bestKey } from '@/lib/storage'
 import { cn } from '@/lib/utils'
@@ -15,13 +14,13 @@ export default function StagePicker() {
   const t = useT()
   const navigate = useNavigate()
   const bests = usePersisted((s) => s.bests)
-  const { setLevel, setStage, resetRun, packsDone } = useSession()
+  const { setLevel, setStage, resetRun } = useSession()
 
   const pick = (stage: number) => {
     setLevel('easy')
     setStage(stage)
     resetRun()
-    navigate(stageStart(stage, packsDone))
+    navigate(`/stage/${stage}`)
   }
 
   return (

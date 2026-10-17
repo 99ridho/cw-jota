@@ -1,4 +1,4 @@
-import { num, speed, str } from './lib/env'
+import { bool, num, speed, str } from './lib/env'
 
 const env = import.meta.env
 
@@ -11,6 +11,8 @@ export const STATION_CTA = {
 export const PRACTICE_URL = str(env.VITE_PRACTICE_URL, 'https://lcwo.net')
 export const TONE_HZ = num(env.VITE_TONE_HZ, 650)
 export const EVENT_LABEL = str(env.VITE_EVENT_LABEL, 'JOTA 2026')
+/** Off drops the tap-pad Send step from Learn packs. */
+export const SEND_DRILL = bool(env.VITE_SEND_DRILL, true)
 export const ANALYTICS_URL = str(env.VITE_ANALYTICS_URL, '') || undefined
 
 export const SPEED_PRESETS = {

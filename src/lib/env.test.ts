@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { num, speed, str } from './env'
+import { bool, num, speed, str } from './env'
 
 describe('env parsing', () => {
   it('treats blank strings as unset', () => {
@@ -14,6 +14,15 @@ describe('env parsing', () => {
     expect(num('abc', 650)).toBe(650)
     expect(num('0', 650)).toBe(650)
     expect(num('700', 650)).toBe(700)
+  })
+
+  it('reads on/off switches', () => {
+    expect(bool('false', true)).toBe(false)
+    expect(bool(' OFF ', true)).toBe(false)
+    expect(bool('0', true)).toBe(false)
+    expect(bool('yes', false)).toBe(true)
+    expect(bool('', true)).toBe(true)
+    expect(bool('maybe', false)).toBe(false)
   })
 
   it('parses c/s speeds', () => {

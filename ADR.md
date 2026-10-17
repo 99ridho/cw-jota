@@ -131,3 +131,17 @@ Date: 2026-10-17 · Status: Accepted
 Context: Each Challenge level picked from a hand-picked list of 25 to 30 words, so players who came back saw the same mystery words again.
 Decision: `scripts/gen-words.mjs` takes Faker's English word lists plus the old curated lists as seeds, keeps words of 3 to 6 letters, drops a blocklist (words unsuitable for kids, archaic words, jargon, brands, sounds with no settled spelling), and writes `src/lib/morse/wordPools.ts`. Each Easy stage keeps only words spelled with letters taught so far, and from stage 2 on each word has at least one letter the stage introduces. Faker is a dev dependency, so it never reaches the app. Hard keeps its 3 random callsigns. One of its 2 ham codes becomes a pool word.
 Consequences: The pools hold 54 words for stage 1, 288 to 862 for later stages, and 1504 for Medium. Stage 1 still always includes SOS. The bundle grows by about 6 kB gzipped. Some Faker words are uncommon (SONATA, OCELOT). Words a leader objects to go in the blocklist, then `npm run gen:words` rebuilds the pools.
+
+## ADR-018: Pack picker after the stage picker
+Date: 2026-10-17 · Status: Accepted
+
+Context: Picking an Easy stage jumped straight to the warm-up, the next pack, or the challenge, so a player could not replay a pack, skip one they already know, or go straight to the stage's words.
+Decision: Picking a stage opens `/stage/:s`, a list of the warm-up (stages 2 to 4), each pack with its letters, and Mystery words. Every card is open. A check marks packs done this visit, and an "Up next" sticker marks the card `stageStart` would have opened. Finish's "Next stage" opens the next stage's pack picker too.
+Consequences: One more tap before learning starts. Players can play Mystery words without learning the stage's letters first.
+
+## ADR-019: Send drill behind `VITE_SEND_DRILL`
+Date: 2026-10-17 · Status: Accepted
+
+Context: Some stations may not want the tap-pad Send step, for example when time per visitor is short.
+Decision: `VITE_SEND_DRILL` (default `true`) switches the Send drill. With `false`, Learn packs show Meet and Hear only, and Decode's pass button ("Finish the pack") goes to the pack's Done screen.
+Consequences: With Send off, the First Signal badge cannot be earned. Finish lists only earned badges, so nothing shows it missing.

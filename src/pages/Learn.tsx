@@ -20,9 +20,10 @@ import { usePlayMorse } from '@/hooks/usePlayMorse'
 import { useSendInput, type SendResult } from '@/hooks/useSendInput'
 import { DIT_MAX_U } from '@/lib/morse/classifier'
 import { useSession } from '@/store/session'
+import { SEND_DRILL } from '@/config'
 
 type Step = 'meet' | 'decode' | 'send' | 'done'
-const STEP_INDEX: Record<Step, number> = { meet: 0, decode: 1, send: 2, done: 3 }
+const STEPS: Exclude<Step, 'done'>[] = SEND_DRILL ? ['meet', 'decode', 'send'] : ['meet', 'decode']
 const CARD_COLORS = ['bg-accent', 'bg-info', 'bg-pink']
 
 export default function Learn() {
@@ -49,9 +50,9 @@ function LearnPack({ stage, pack }: { stage: number; pack: number }) {
         )
       }
     >
-      <StepBar steps={[t('learn.step.meet'), t('learn.step.decode'), t('learn.step.send')]} current={STEP_INDEX[step]} />
+      <StepBar steps={STEPS.map((s) => t(`learn.step.${s}` as const))} current={step === 'done' ? STEPS.length : STEPS.indexOf(step)} />
       {step === 'meet' && <Meet chars={chars} onDone={() => setStep('decode')} />}
-      {step === 'decode' && <Decode stage={stage} pack={pack} setStreak={setStreak} onDone={() => setStep('send')} />}
+      {step === 'decode' && <Decode stage={stage} pack={pack} setStreak={setStreak} onDone={() => setStep(SEND_DRILL ? 'send' : 'done')} />}
       {step === 'send' && <Send stage={stage} pack={pack} setStreak={setStreak} onDone={() => setStep('done')} />}
       {step === 'done' && <Done stage={stage} pack={pack} chars={chars} />}
     </AppShell>
@@ -192,7 +193,7 @@ function Decode({
         <div className="mt-auto">
           {passed ? (
             <Button size="xl" className="w-full" onClick={onDone}>
-              {t('learn.decode.next')} <ArrowRight className="size-6" />
+              {t(SEND_DRILL ? 'learn.decode.next' : 'learn.decode.finish')} <ArrowRight className="size-6" />
             </Button>
           ) : (
             <Button
