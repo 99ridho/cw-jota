@@ -15,6 +15,7 @@ export const en = {
   'hook.kicker': 'Incoming transmission',
   'hook.title': 'Something is calling you…',
   'hook.replay': 'Replay',
+  'hook.skip': 'Skip',
   'hook.reveal': 'Tap to decode',
   'hook.revealed': 'The message says',
   'hook.next': 'Pick my level',

@@ -17,6 +17,7 @@ export const id: Dict = {
   'hook.kicker': 'Transmisi masuk',
   'hook.title': 'Ada yang memanggilmu…',
   'hook.replay': 'Putar lagi',
+  'hook.skip': 'Lewati',
   'hook.reveal': 'Ketuk untuk membaca pesan',
   'hook.revealed': 'Pesannya berbunyi',
   'hook.next': 'Pilih level',

@@ -192,7 +192,7 @@ after a clear dah   u = 0.7*u + 0.3*(d/3)
 ### 7.2 Hook (`/hook`)
 - Copy: "Something is calling you…". The mystery message plays with the `SignalLamp` blinking and the pattern shown as dits and dahs.
 - Tap to reveal the decoded text. The message comes from `config.HOOK_MESSAGE` (for example `JOTA`), since the hook comes before any learning.
-- Replay button, then Next to the level picker.
+- Replay button, then Next to the level picker. Before the reveal, a Skip button beside Replay stops the message and goes straight to the level picker (ADR-021).
 
 ### 7.2b Level picker (`/level`)
 - Three stacked cards: **Easy** (4 stages, Learn packs first), **Medium** (A to Z), **Hard** (A to Z and 0 to 9). Medium and Hard show their personal best or "No score yet"; Easy shows its top stage score and which stage it was on.

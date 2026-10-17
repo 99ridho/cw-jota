@@ -152,3 +152,10 @@ Date: 2026-10-17 · Status: Accepted · Supersedes the history behavior of ADR-0
 Context: Back stepped through browser history, so after Next pack or Finish's Next stage it landed on an earlier pack or a finished round instead of the screen above. From a stage's pack picker it could even land on Welcome.
 Decision: Each route in `src/routes.tsx` names its parent in `handle.parent`, and the header's Back reads it with `useMatches`: Learn pack and warm-up go to `/stage/:s`, `/stage/:s` to `/stage`, `/stage` to `/level`, `/level` and `/hook` to `/`. Challenge and Finish go to `/stage/:s` on Easy and `/level` on Medium and Hard. When the parent is the history entry right behind, Back pops it (`navigate(-1)`); otherwise it replaces the current entry with the parent (`useBack` in `src/hooks/useBack.ts`).
 Consequences: Back always lands on the same screen, however the player got there. Back never adds history entries, and when the parent is right behind, the phone's back gesture and the header Back agree. After a replace (for example, Back from a pack reached through Next pack), the phone's back gesture goes to the entry before the replaced one. Back from mid-Challenge still abandons the round with no confirm.
+
+## ADR-021: Skip on the Hook screen
+Date: 2026-10-17 · Status: Accepted
+
+Context: Repeat visitors had to sit through the mystery message and tap reveal before they could reach the level picker.
+Decision: Before the reveal, a Skip button sits beside Replay on Hook. It stops the message and opens `/level`. After the reveal it goes away, since "Pick my level" does the same thing.
+Consequences: Returning players reach the level picker in one tap. First-timers can skip the hook too, but Reveal stays the primary button.

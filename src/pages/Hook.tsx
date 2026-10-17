@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
-import { ArrowRight, Eye, RotateCcw } from 'lucide-react'
+import { ArrowRight, Eye, RotateCcw, SkipForward } from 'lucide-react'
 import { AppShell, Sticker } from '@/components/AppShell'
 import { PatternGlyph } from '@/components/PatternGlyph'
 import { SignalLamp } from '@/components/SignalLamp'
@@ -30,6 +30,11 @@ export default function Hook() {
     setPlayed(true)
     setRevealed(true)
     blip('good')
+  }
+
+  const skip = () => {
+    player.stop()
+    navigate('/level')
   }
 
   return (
@@ -88,9 +93,16 @@ export default function Hook() {
             {t('hook.next')} <ArrowRight className="size-6" />
           </Button>
         )}
-        <Button variant="outline" onClick={() => void player.play()} disabled={player.isPlaying}>
-          <RotateCcw /> {t('hook.replay')}
-        </Button>
+        <div className={cn('grid gap-3', !revealed && 'grid-cols-2')}>
+          <Button variant="outline" onClick={() => void player.play()} disabled={player.isPlaying}>
+            <RotateCcw /> {t('hook.replay')}
+          </Button>
+          {!revealed && (
+            <Button variant="outline" onClick={skip}>
+              <SkipForward /> {t('hook.skip')}
+            </Button>
+          )}
+        </div>
       </div>
     </AppShell>
   )
