@@ -169,7 +169,7 @@ export default function Finish() {
         <p className="label-mono">
           {t('finish.station.callsign')}: <span className="text-base">{STATION_CALLSIGN}</span>
         </p>
-        <div className="flex items-center gap-4 border-[3px] border-border bg-card p-3">
+        <div className="flex items-center gap-4 border-[3px] border-border bg-card p-3 text-card-foreground">
           {/* Paper behind the code in both themes: scanners need dark on light. */}
           <QRCodeSVG value={PRACTICE_URL} size={112} bgColor="#f8eace" fgColor="#1a150f" marginSize={2} level="M" className="shrink-0" />
           <div className="flex flex-col gap-1">
