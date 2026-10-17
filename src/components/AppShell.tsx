@@ -1,10 +1,12 @@
 import type { ReactNode } from 'react'
-import { useNavigate } from 'react-router'
+import { useLocation, useNavigate } from 'react-router'
 import { ArrowLeft } from 'lucide-react'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { Button } from '@/components/ui/button'
 import { useT } from '@/i18n'
+import { parentPath } from '@/lib/nav'
 import { cn } from '@/lib/utils'
+import { useSession } from '@/store/session'
 
 interface Props {
   kicker?: ReactNode
@@ -18,8 +20,10 @@ interface Props {
 export function AppShell({ kicker, right, back = true, children, className }: Props) {
   const t = useT()
   const navigate = useNavigate()
-  // react-router stores the history index; 0 means this tab opened on this page.
-  const goBack = () => ((window.history.state?.idx ?? 0) > 0 ? navigate(-1) : navigate('/'))
+  const { pathname } = useLocation()
+  const level = useSession((s) => s.level)
+  const stage = useSession((s) => s.stage)
+  const goBack = () => navigate(parentPath(pathname, level, stage))
 
   return (
     <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col px-4 pt-[max(1rem,env(safe-area-inset-top))] pb-[max(1.25rem,env(safe-area-inset-bottom))]">
