@@ -150,5 +150,5 @@ Consequences: With Send off, the First Signal badge cannot be earned. Finish lis
 Date: 2026-10-17 · Status: Accepted · Supersedes the history behavior of ADR-012
 
 Context: Back stepped through browser history, so after Next pack or Finish's Next stage it landed on an earlier pack or a finished round instead of the screen above. From a stage's pack picker it could even land on Welcome.
-Decision: Each screen has a fixed parent (`parentPath` in `src/lib/nav.ts`): Learn pack and warm-up go to `/stage/:s`, `/stage/:s` to `/stage`, `/stage` to `/level`, `/level` and `/hook` to `/`. Challenge and Finish go to `/stage/:s` on Easy and `/level` on Medium and Hard.
+Decision: Each route in `src/routes.tsx` names its parent in `handle.parent`, and the header's Back reads it with `useMatches`: Learn pack and warm-up go to `/stage/:s`, `/stage/:s` to `/stage`, `/stage` to `/level`, `/level` and `/hook` to `/`. Challenge and Finish go to `/stage/:s` on Easy and `/level` on Medium and Hard.
 Consequences: Back always lands on the same screen, however the player got there. Back pushes a new history entry, so the browser's own back gesture can return to the screen just left. Back from mid-Challenge still abandons the round with no confirm.

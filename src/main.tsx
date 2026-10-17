@@ -1,13 +1,13 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import { RouterProvider } from 'react-router'
+import { createBrowserRouter, RouterProvider } from 'react-router'
 import '@fontsource/pt-sans/latin-400.css'
 import '@fontsource/pt-sans/latin-700.css'
 import '@fontsource/pt-mono/latin-400.css'
 import './index.css'
 import { ANALYTICS_URL } from './config'
 import { captureInstallPrompt } from './hooks/useInstallPrompt'
-import { router } from './routes'
+import { routes } from './routes'
 import { usePersisted } from './store/session'
 
 const syncLang = (lang: string) => document.documentElement.setAttribute('lang', lang)
@@ -33,6 +33,8 @@ if (ANALYTICS_URL) {
   s.dataset.goatcounter = ANALYTICS_URL
   document.head.appendChild(s)
 }
+
+const router = createBrowserRouter(routes)
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

@@ -1,12 +1,11 @@
 import type { ReactNode } from 'react'
-import { useLocation, useNavigate } from 'react-router'
+import { useMatches, useNavigate } from 'react-router'
 import { ArrowLeft } from 'lucide-react'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { Button } from '@/components/ui/button'
 import { useT } from '@/i18n'
-import { parentPath } from '@/lib/nav'
 import { cn } from '@/lib/utils'
-import { useSession } from '@/store/session'
+import type { RouteHandle } from '@/routes'
 
 interface Props {
   kicker?: ReactNode
@@ -20,10 +19,9 @@ interface Props {
 export function AppShell({ kicker, right, back = true, children, className }: Props) {
   const t = useT()
   const navigate = useNavigate()
-  const { pathname } = useLocation()
-  const level = useSession((s) => s.level)
-  const stage = useSession((s) => s.stage)
-  const goBack = () => navigate(parentPath(pathname, level, stage))
+  const match = useMatches().at(-1)
+  // Each route names its parent in routes.tsx; anything without one goes home.
+  const goBack = () => navigate((match?.handle as RouteHandle | undefined)?.parent(match!.params) ?? '/')
 
   return (
     <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col px-4 pt-[max(1rem,env(safe-area-inset-top))] pb-[max(1.25rem,env(safe-area-inset-bottom))]">
