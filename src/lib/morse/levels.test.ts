@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { callsign, EASY_STAGES, stageStart, HARD_CODES, levelChars, LEVELS, MEDIUM_WORDS, pickWords } from './levels'
+import { callsign, EASY_STAGES, stageStart, HARD_CODES, levelChars, LEVELS, pickWords } from './levels'
+import { MEDIUM_POOL } from './wordPools'
 import { MORSE_TABLE } from './table'
 
 describe('levels', () => {
@@ -8,8 +9,8 @@ describe('levels', () => {
     expect(levelChars('hard')).toHaveLength(36)
   })
 
-  it('curated lists only use their level characters', () => {
-    for (const w of MEDIUM_WORDS) for (const c of w) expect(levelChars('medium')).toContain(c)
+  it('word lists only use their level characters', () => {
+    for (const w of MEDIUM_POOL) for (const c of w) expect(levelChars('medium')).toContain(c)
     for (const w of HARD_CODES) for (const c of w) expect(levelChars('hard')).toContain(c)
   })
 
@@ -29,6 +30,16 @@ describe('levels', () => {
         expect(new Set(w).size).toBe(5)
         for (const word of w) for (const c of word) expect(levelChars(l)).toContain(c)
       }
+    }
+  })
+
+  it('mixes a code, a word, and three callsigns on hard', () => {
+    for (let i = 0; i < 50; i++) {
+      const [code, word, ...calls] = pickWords('hard')
+      expect(HARD_CODES).toContain(code)
+      expect(MEDIUM_POOL).toContain(word)
+      expect(calls).toHaveLength(3)
+      for (const c of calls) expect(c).toMatch(/^[A-Z0-9]{1,2}\d[A-Z]{1,3}$/)
     }
   })
 

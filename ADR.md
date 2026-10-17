@@ -124,3 +124,10 @@ Date: 2026-10-17 · Status: Accepted
 Context: The app already had a manifest and an offline service worker, but players could only install it from the browser menu, which first-timers at the station don't find.
 Decision: Finish shows a "Keep it on your phone" section after the station card. Browsers with an install prompt get an Add to home screen button; iOS Safari gets the Share, Add to Home Screen steps. Nothing shows when already installed or when the browser can't install. The manifest gains `id`, `start_url`, `scope`, `lang`, and a padded maskable icon; `index.html` gains the iOS web-app meta tags.
 Consequences: Players can keep practicing offline after the event from a home-screen icon. The offer stays off Welcome so it does not compete with starting the game. Install needs HTTPS outside localhost.
+
+## ADR-017: Mystery words from Faker, generated at build time
+Date: 2026-10-17 · Status: Accepted
+
+Context: Each Challenge level picked from a hand-picked list of 25 to 30 words, so players who came back saw the same mystery words again.
+Decision: `scripts/gen-words.mjs` takes Faker's English word lists plus the old curated lists as seeds, keeps words of 3 to 6 letters, drops a blocklist (words unsuitable for kids, archaic words, jargon, brands, sounds with no settled spelling), and writes `src/lib/morse/wordPools.ts`. Each Easy stage keeps only words spelled with letters taught so far, and from stage 2 on each word has at least one letter the stage introduces. Faker is a dev dependency, so it never reaches the app. Hard keeps its 3 random callsigns. One of its 2 ham codes becomes a pool word.
+Consequences: The pools hold 54 words for stage 1, 288 to 862 for later stages, and 1504 for Medium. Stage 1 still always includes SOS. The bundle grows by about 6 kB gzipped. Some Faker words are uncommon (SONATA, OCELOT). Words a leader objects to go in the blocklist, then `npm run gen:words` rebuilds the pools.

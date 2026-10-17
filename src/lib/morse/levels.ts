@@ -1,5 +1,6 @@
 import { shuffle } from './drill'
 import { STAGES, stageChars } from './table'
+import { MEDIUM_POOL } from './wordPools'
 import { pickStageWords } from './words'
 
 export type Level = 'easy' | 'medium' | 'hard'
@@ -31,13 +32,6 @@ export function levelChars(level: Level, stage = 1): string[] {
   return [...LETTERS, ...DIGITS]
 }
 
-/** Short words a scout at the station would know, in English or as loanwords in Indonesian. */
-export const MEDIUM_WORDS = [
-  'RADIO', 'CAMP', 'TENT', 'KNOT', 'SCOUT', 'WAVE', 'FIRE', 'FLAG', 'ROPE', 'HIKE',
-  'JOTA', 'MAP', 'SKY', 'BUS', 'KEY', 'HELLO', 'BADGE', 'TORCH', 'RIVER', 'FOX',
-  'JAM', 'ZOO', 'QUIZ', 'WOLF', 'BOX', 'GPS', 'VOICE', 'PIZZA', 'JUNGLE', 'LIGHT',
-]
-
 /** Ham radio shorthand that mixes in digits. */
 export const HARD_CODES = ['73', '88', '599', '5NN', 'CQ', 'QTH', 'QSL', 'QRZ', 'JOTA26']
 
@@ -58,13 +52,14 @@ export function callsign(rand: () => number = Math.random): string {
 export function pickWords(level: Level, stage = 1, count = 5, rand: () => number = Math.random): string[] {
   if (level === 'easy') return pickStageWords(stage, count, rand)
   if (level === 'medium') {
-    return shuffle(MEDIUM_WORDS, rand)
+    return shuffle(MEDIUM_POOL, rand)
       .slice(0, count)
       .sort((a, b) => a.length - b.length)
   }
-  const codes = shuffle(HARD_CODES, rand).slice(0, 2)
+  const code = pickOne(HARD_CODES, rand)
+  const word = pickOne(MEDIUM_POOL, rand)
   const calls = new Set<string>()
-  while (calls.size < count - codes.length) calls.add(callsign(rand))
-  // Codes are shorter, so they open the round.
-  return [...codes, ...calls]
+  while (calls.size < count - 2) calls.add(callsign(rand))
+  // Familiar items open the round; the callsigns, which must be heard letter by letter, close it.
+  return [code, word, ...calls]
 }

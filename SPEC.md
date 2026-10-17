@@ -209,10 +209,11 @@ after a clear dah   u = 0.7*u + 0.3*(d/3)
 
 ### 7.4 Challenge (`/challenge`)
 - 5 mystery words for the picked level. Each is played, and the player enters it on `LetterKeypad` or a physical keyboard. Replay is unlimited at a small score cost.
-- **Easy stage 1:** words from `WORDS` in `words.ts`, a curated list validated by a unit test so every word uses only the 7 characters. Examples: `SOS, SEA, NOTE, STONE, MEAT, TEAM, NAME, MOON, ONSET, MEAN`. One word is always `SOS` (earns `sos_master`). Keypad: 7 keys, no patterns, in teaching order (ADR-014).
-- **Easy stages 2 to 4:** 5 from `STAGE_WORDS[stage]`, short first. A unit test checks every word uses only letters taught through that stage and at least one letter the stage introduces. Keypad: the stage's letters A to Z, no patterns (they do not fit at 14 keys and up).
-- **Medium:** 5 from `MEDIUM_WORDS` in `levels.ts` (short scout and radio words, A to Z). Keypad: 26 letters, no patterns.
-- **Hard:** 2 ham codes from `HARD_CODES` (`73`, `599`, `5NN`, `CQ`, ...) then 3 generated callsigns: an Indonesian (`YB`..`YH`) or world prefix, one digit, 1 to 3 letters, at most 6 characters. Keypad: letters with an `ABC | 123` page toggle.
+- **Word pools (ADR-017):** `scripts/gen-words.mjs` (`npm run gen:words`) builds `src/lib/morse/wordPools.ts` from Faker's English word lists plus a curated seed list, keeping words of 3 to 6 letters and dropping a blocklist (unsuitable for kids, archaic, jargon, brands). Faker is a dev dependency only; the app ships the generated lists. Each round picks at random from them.
+- **Easy stage 1:** 5 from `EASY_POOLS[1]`, words spelled only with the 7 characters. Examples: `SOS, SEA, NOTE, STONE, MEAT, TEAM, NAME, MOON, ONSET, MEAN`. One word is always `SOS` (earns `sos_master`). Keypad: 7 keys, no patterns, in teaching order (ADR-014).
+- **Easy stages 2 to 4:** 5 from `EASY_POOLS[stage]`, short first. A unit test checks every word uses only letters taught through that stage and at least one letter the stage introduces. Keypad: the stage's letters A to Z, no patterns (they do not fit at 14 keys and up).
+- **Medium:** 5 from `MEDIUM_POOL` (every pool word, A to Z). Keypad: 26 letters, no patterns.
+- **Hard:** 1 ham code from `HARD_CODES` (`73`, `599`, `5NN`, `CQ`, ...), 1 word from `MEDIUM_POOL`, then 3 generated callsigns: an Indonesian (`YB`..`YH`) or world prefix, one digit, 1 to 3 letters, at most 6 characters. Keypad: letters with an `ABC | 123` page toggle.
 - Score, per word: 100 per correct letter, plus up to 50 speed bonus, minus 10 per replay. Streak multiplier up to 2x. Personal best is saved to local storage, one per Easy stage plus one each for Medium and Hard.
 
 ### 7.5 Finish (`/finish`)
@@ -278,7 +279,7 @@ src/
   config.ts
   i18n/{en.ts,id.ts,index.ts}
   lib/
-    morse/{table.ts,timing.ts,classifier.ts,words.ts,scoring.ts}
+    morse/{table.ts,timing.ts,classifier.ts,words.ts,wordPools.ts,scoring.ts}
     audio/{engine.ts,unlock.ts}
     storage.ts
   store/session.ts           Zustand store (session + persisted slice)
@@ -296,7 +297,7 @@ src/
 ### Unit (Vitest)
 - Timing: dit and dah durations, Farnsworth `ta` (including the `s == c` identity), gap lengths.
 - Classifier: sloppy and slow input still classifies correctly, unit adaptation clamps, commit timeout.
-- Words: every word in `words.ts` uses only the 7 characters; the list contains `SOS`.
+- Words: every pool word is 3 to 6 letters A to Z with no duplicates; stage 1 uses only the 7 characters and contains `SOS`; each later stage uses only letters taught so far and at least one it introduces; pools stay large (stage 1 40+, later stages 200+, Medium 1000+).
 - Scoring: streak multiplier, replay penalty, speed bonus bounds.
 - i18n: `en` and `id` key parity.
 - Storage: survives blocked `localStorage`.

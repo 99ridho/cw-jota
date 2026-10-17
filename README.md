@@ -11,6 +11,7 @@ npm test           # vitest
 npm run lint       # type check + copy check
 npm run build      # outputs dist/
 npm run preview    # serves dist/ with deep links
+npm run gen:words  # rebuilds src/lib/morse/wordPools.ts from Faker + seeds
 ```
 
 ## Configure
