@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router'
 import { ArrowRight, Eye, RotateCcw, SkipForward } from 'lucide-react'
+import { useFlowNavigate } from '@/hooks/useFlow'
 import { AppShell, Sticker } from '@/components/AppShell'
 import { PatternGlyph } from '@/components/PatternGlyph'
 import { SignalLamp } from '@/components/SignalLamp'
@@ -14,7 +14,7 @@ import { usePlayMorse } from '@/hooks/usePlayMorse'
 
 export default function Hook() {
   const t = useT()
-  const navigate = useNavigate()
+  const navigate = useFlowNavigate()
   const msg = HOOK_MESSAGE.toUpperCase()
   const player = usePlayMorse(msg)
   const [played, setPlayed] = useState(false)

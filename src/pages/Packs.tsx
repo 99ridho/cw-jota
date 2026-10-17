@@ -1,5 +1,6 @@
-import { useNavigate, useParams } from 'react-router'
+import { useParams } from 'react-router'
 import { Check, Trophy } from 'lucide-react'
+import { useFlowNavigate } from '@/hooks/useFlow'
 import { AppShell, Sticker } from '@/components/AppShell'
 import { useT } from '@/i18n'
 import { stageStart } from '@/lib/morse/levels'
@@ -16,7 +17,7 @@ type Card = { to: string; title: string; letters?: string; sub?: string; color: 
 /** Every way into an Easy stage: warm-up, any pack, or straight to the words. */
 export default function Packs() {
   const t = useT()
-  const navigate = useNavigate()
+  const navigate = useFlowNavigate()
   const stage = Number(useParams().stage)
   const packsDone = useSession((s) => s.packsDone)
   const bests = usePersisted((s) => s.bests)

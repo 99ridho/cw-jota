@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
-import { useNavigate } from 'react-router'
 import { QRCodeSVG } from 'qrcode.react'
 import { toast } from 'sonner'
 import { ArrowRight, Download, Lock, Play, RotateCcw, Share, Share2, Smartphone, SquarePlus, Trophy } from 'lucide-react'
+import { useFlowNavigate } from '@/hooks/useFlow'
 import { AppShell, Sticker } from '@/components/AppShell'
 import { NameCard } from '@/components/NameCard'
 import { Button } from '@/components/ui/button'
@@ -23,7 +23,7 @@ const cleanName = (s: string) => s.toUpperCase().replace(/[^A-Z0-9 ]/g, '').slic
 
 export default function Finish() {
   const t = useT()
-  const navigate = useNavigate()
+  const navigate = useFlowNavigate()
   const { score, newBadges, resetRun, stage, setStage } = useSession()
   const level = useSession((s) => s.level) ?? 'easy'
   const key = bestKey(level, stage)

@@ -1,5 +1,5 @@
-import { useNavigate } from 'react-router'
 import { Trophy } from 'lucide-react'
+import { useFlowNavigate } from '@/hooks/useFlow'
 import { AppShell } from '@/components/AppShell'
 import { useT } from '@/i18n'
 import { EASY_STAGES, LEVELS, type Level } from '@/lib/morse/levels'
@@ -13,7 +13,7 @@ const SET: Record<Exclude<Level, 'easy'>, string> = { medium: 'Aâ€“Z', hard: 'Aâ
 
 export default function LevelPicker() {
   const t = useT()
-  const navigate = useNavigate()
+  const navigate = useFlowNavigate()
   const bests = usePersisted((s) => s.bests)
   const { setLevel, resetRun } = useSession()
 

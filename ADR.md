@@ -159,3 +159,10 @@ Date: 2026-10-17 · Status: Accepted
 Context: Repeat visitors had to sit through the mystery message and tap reveal before they could reach the level picker.
 Decision: While the message first plays, a Skip button sits beside Replay on Hook. It stops the message and opens `/level`. When that first play ends (or the player taps reveal), Skip goes away and Replay takes the full width, since the player can then reveal and tap "Pick my level".
 Consequences: Returning players reach the level picker in one tap without waiting for the message. Once the first play ends, there is no Skip, so a player who stays has to reveal before moving on.
+
+## ADR-022: Navigation is a stack
+Date: 2026-10-17 · Status: Accepted · Supersedes the Back mechanics of ADR-020 (the parents stay)
+
+Context: The header Back replaced the current entry when its parent was not right behind, so the header Back and the phone's back gesture could land on different screens.
+Decision: History is a stack of the flow, and every Back (header, browser, gesture) pops it. Each screen's parent now lives in `src/lib/flow.ts`, and pages navigate with `useFlowNavigate` (`src/hooks/useFlow.ts`): going one level deeper pushes, a sibling (Next pack, warm-up to pack 1, last pack to Challenge, Challenge to Finish, Hook to Level) replaces the top, and a screen whose parent is further down the stack pops back to that parent and then pushes (Finish's Next stage and Play again). The header Back only replaces with the parent when there is no history behind it.
+Consequences: Header Back and the back gesture always agree and still land one level up. Replaying rounds never grows history. On Next stage and Play again, the popped-to screen can show for a frame before the push.

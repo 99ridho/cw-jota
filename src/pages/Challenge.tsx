@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import { useNavigate } from 'react-router'
 import { ArrowRight, RotateCcw, Timer } from 'lucide-react'
+import { useFlowNavigate } from '@/hooks/useFlow'
 import { AppShell, Sticker } from '@/components/AppShell'
 import { Feedback } from '@/components/Feedback'
 import { LetterKeypad } from '@/components/LetterKeypad'
@@ -21,7 +21,7 @@ const QUICK_EARS_S = 8
 
 export default function Challenge() {
   const t = useT()
-  const navigate = useNavigate()
+  const navigate = useFlowNavigate()
   const { challenge, score, streak, startChallenge, recordWord } = useSession()
   const level = useSession((s) => s.level) ?? 'easy'
   const stage = useSession((s) => s.stage)

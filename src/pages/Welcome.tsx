@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router'
 import { ArrowRight, Headphones, Volume2 } from 'lucide-react'
+import { useFlowNavigate } from '@/hooks/useFlow'
 import { AppShell, Sticker } from '@/components/AppShell'
 import { PatternGlyph } from '@/components/PatternGlyph'
 import { SignalLamp } from '@/components/SignalLamp'
@@ -14,7 +14,7 @@ import { usePersisted } from '@/store/session'
 
 export default function Welcome() {
   const t = useT()
-  const navigate = useNavigate()
+  const navigate = useFlowNavigate()
   const { lang, setLang, reduceMotion, setReduceMotion } = usePersisted()
   const tone = usePlayMorse('TEST')
   const [starting, setStarting] = useState(false)

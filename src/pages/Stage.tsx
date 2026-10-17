@@ -1,5 +1,5 @@
-import { useNavigate } from 'react-router'
 import { Trophy } from 'lucide-react'
+import { useFlowNavigate } from '@/hooks/useFlow'
 import { AppShell } from '@/components/AppShell'
 import { useT } from '@/i18n'
 import { stageChars, stageNew, STAGES } from '@/lib/morse/table'
@@ -12,7 +12,7 @@ const CARD_COLORS = ['bg-accent', 'bg-info', 'bg-pink', 'bg-secondary']
 
 export default function StagePicker() {
   const t = useT()
-  const navigate = useNavigate()
+  const navigate = useFlowNavigate()
   const bests = usePersisted((s) => s.bests)
   const { setLevel, setStage, resetRun } = useSession()
 

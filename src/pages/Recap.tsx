@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import { useNavigate, useParams } from 'react-router'
+import { useParams } from 'react-router'
 import { ArrowRight } from 'lucide-react'
+import { useFlowNavigate } from '@/hooks/useFlow'
 import { AppShell } from '@/components/AppShell'
 import { PatternGlyph } from '@/components/PatternGlyph'
 import { SignalLamp } from '@/components/SignalLamp'
@@ -13,7 +14,7 @@ import { usePlayMorse } from '@/hooks/usePlayMorse'
 /** Warm-up before a later Easy stage: every earlier letter, one tap to hear it. */
 export default function Recap() {
   const t = useT()
-  const navigate = useNavigate()
+  const navigate = useFlowNavigate()
   const stage = Number(useParams().stage)
   const player = usePlayMorse()
   const [playing, setPlaying] = useState<MorseChar | null>(null)

@@ -1,9 +1,8 @@
-import { Outlet, redirect, ScrollRestoration, type Params, type RouteObject } from 'react-router'
+import { Outlet, redirect, ScrollRestoration, type RouteObject } from 'react-router'
 import { Toaster } from '@/components/ui/sonner'
 import { isUnlocked } from '@/lib/audio/unlock'
 import { STAGES } from '@/lib/morse/table'
-import { useSession } from '@/store/session'
-import { useTrackHistory } from '@/hooks/useBack'
+import { useTrackHistory } from '@/hooks/useFlow'
 import Welcome from '@/pages/Welcome'
 import RouteError from '@/pages/RouteError'
 
@@ -15,15 +14,6 @@ const page = (load: () => Promise<{ default: React.ComponentType }>) => async ()
 // Audio can only be unlocked by a gesture on Welcome, so deep links and
 // reloads bounce back there.
 const requireAudio = () => (isUnlocked() ? null : redirect('/'))
-
-/** Where the header's Back goes: one level up the flow, not back in history (ADR-020). */
-export type RouteHandle = { parent: (params: Params) => string }
-const parent = (to: string | ((params: Params) => string)): RouteHandle => ({ parent: typeof to === 'string' ? () => to : to })
-// Challenge and Finish belong to the Easy stage being played, or to the level picker.
-const levelParent = parent(() => {
-  const { level, stage } = useSession.getState()
-  return level === 'easy' ? `/stage/${stage}` : '/level'
-})
 
 function Root() {
   useTrackHistory()
@@ -42,13 +32,12 @@ export const routes: RouteObject[] = [
     errorElement: <RouteError />,
     children: [
       { path: '/', element: <Welcome /> },
-      { path: '/hook', lazy: page(() => import('@/pages/Hook')), loader: requireAudio, handle: parent('/') },
-      { path: '/level', lazy: page(() => import('@/pages/Level')), loader: requireAudio, handle: parent('/') },
-      { path: '/stage', lazy: page(() => import('@/pages/Stage')), loader: requireAudio, handle: parent('/level') },
+      { path: '/hook', lazy: page(() => import('@/pages/Hook')), loader: requireAudio },
+      { path: '/level', lazy: page(() => import('@/pages/Level')), loader: requireAudio },
+      { path: '/stage', lazy: page(() => import('@/pages/Stage')), loader: requireAudio },
       {
         path: '/stage/:stage',
         lazy: page(() => import('@/pages/Packs')),
-        handle: parent('/stage'),
         loader: ({ params }) => {
           const s = Number(params.stage)
           if (!Number.isInteger(s) || s < 1 || s > STAGES.length) return redirect('/stage')
@@ -58,7 +47,6 @@ export const routes: RouteObject[] = [
       {
         path: '/learn/:stage/recap',
         lazy: page(() => import('@/pages/Recap')),
-        handle: parent(({ stage }) => `/stage/${stage}`),
         loader: ({ params }) => {
           const s = Number(params.stage)
           if (!Number.isInteger(s) || s < 2 || s > STAGES.length) return redirect('/stage')
@@ -68,7 +56,6 @@ export const routes: RouteObject[] = [
       {
         path: '/learn/:stage/:pack',
         lazy: page(() => import('@/pages/Learn')),
-        handle: parent(({ stage }) => `/stage/${stage}`),
         loader: ({ params }) => {
           const s = Number(params.stage)
           const p = Number(params.pack)
@@ -76,8 +63,8 @@ export const routes: RouteObject[] = [
           return requireAudio()
         },
       },
-      { path: '/challenge', lazy: page(() => import('@/pages/Challenge')), loader: requireAudio, handle: levelParent },
-      { path: '/finish', lazy: page(() => import('@/pages/Finish')), loader: requireAudio, handle: levelParent },
+      { path: '/challenge', lazy: page(() => import('@/pages/Challenge')), loader: requireAudio },
+      { path: '/finish', lazy: page(() => import('@/pages/Finish')), loader: requireAudio },
       { path: '*', loader: () => redirect('/') },
     ],
   },

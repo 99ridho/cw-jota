@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
-import { useNavigate, useParams } from 'react-router'
+import { useParams } from 'react-router'
 import { ArrowRight, Check, Ear, Flame, RotateCcw, Volume2 } from 'lucide-react'
+import { useFlowNavigate } from '@/hooks/useFlow'
 import { AppShell, Sticker } from '@/components/AppShell'
 import { Feedback } from '@/components/Feedback'
 import { PatternGlyph } from '@/components/PatternGlyph'
@@ -361,7 +362,7 @@ function Send({
 
 function Done({ stage, pack, chars }: { stage: number; pack: number; chars: MorseChar[] }) {
   const t = useT()
-  const navigate = useNavigate()
+  const navigate = useFlowNavigate()
   const completePack = useSession((s) => s.completePack)
   const setStage = useSession((s) => s.setStage)
   const last = pack >= STAGES[stage - 1]!.length

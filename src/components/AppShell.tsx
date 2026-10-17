@@ -4,7 +4,7 @@ import { ThemeToggle } from '@/components/ThemeToggle'
 import { Button } from '@/components/ui/button'
 import { useT } from '@/i18n'
 import { cn } from '@/lib/utils'
-import { useBack } from '@/hooks/useBack'
+import { useBack } from '@/hooks/useFlow'
 
 interface Props {
   kicker?: ReactNode
