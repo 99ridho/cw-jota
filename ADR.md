@@ -110,3 +110,10 @@ Date: 2026-10-17 · Status: Accepted · Supersedes the keypad part of ADR-009
 Context: Easy stage 1's Challenge keypad printed each letter's pattern on its key, while Learn's Decode keypad shows letters only. The patterns let players read instead of listen.
 Decision: The Challenge keypad shows letters only at every level. `LetterKeypad` no longer has a `showPatterns` option.
 Consequences: Stage 1 Challenge is a little harder, and matches the skill Decode trains.
+
+## ADR-015: Light offset shadows in dark mode
+Date: 2026-10-17 · Status: Accepted · Amends ADR-011
+
+Context: In dark mode the hard offset shadows were near-black on a charcoal page, so cards and buttons lost their lifted, pressable look.
+Decision: In dark mode `--shadow-color` matches the paper-colored border, so every brutal shadow (cards, buttons, tap pad, lit lamp) shows as a light offset.
+Consequences: The press effect (shadow collapsing on tap) stays visible in dark mode. Light mode is unchanged.

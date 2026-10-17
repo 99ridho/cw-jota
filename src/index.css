@@ -57,7 +57,8 @@
   --spacing: 0.25rem;
 }
 
-/* Night shift at the station: warm charcoal page, paper text and borders.
+/* Night shift at the station: warm charcoal page, paper text, borders and
+   offset shadows, so the brutalist edges read on dark like ink on paper.
    Candy fills and --ink keep their light-theme values. */
 :root[data-theme="dark"] {
   color-scheme: dark;
@@ -75,7 +76,7 @@
   --input: oklch(0.2950 0.0150 74.00);
   --ring: oklch(0.7200 0.1700 40.00);
   --lamp-off: oklch(0.4200 0.0300 72.00);
-  --shadow-color: oklch(0.1200 0.0080 72.00);
+  --shadow-color: oklch(0.8800 0.0300 85.00);
 }
 
 @theme inline {
